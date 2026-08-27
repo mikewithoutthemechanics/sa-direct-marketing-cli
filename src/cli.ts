@@ -46,13 +46,13 @@ const argv = yargs(hideBin(process.argv))
       if (result.matched.length === 0) {
         console.log("✓ No registry matches. List is clean for this month.");
       }
-      if (args.write && result.matched.length > 0) {
+      // Always write when --write is set (ensures DNC column exists even with 0 matches)
+      if (args.write) {
         const wb = args.type === "leads" ? applyLeadsCleanse(data, result) : applyCleanse(data, result);
         const out = args.out ?? args.log;
         XLSX.writeFile(wb, out);
-        console.log(`✓ Wrote DNC updates to ${out}`);
-      } else if (args.write) {
-        console.log("(dry run — no matches, nothing to write)");
+        const verb = result.matched.length > 0 ? "Wrote DNC updates" : "Wrote (no matches; DNC column ensured)";
+        console.log(`✓ ${verb} to ${out}`);
       } else {
         console.log("(dry run — re-run with --write to apply DNC changes)");
       }

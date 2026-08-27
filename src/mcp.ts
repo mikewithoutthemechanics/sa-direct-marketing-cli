@@ -55,7 +55,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   }
   const result = cleanse(data.contacts, blocklist);
   let written = false;
-  if (write && result.matched.length > 0) {
+  if (write) {
     XLSX.writeFile(type === "leads" ? applyLeadsCleanse(data, result) : applyCleanse(data, result), logPath);
     written = true;
   }
