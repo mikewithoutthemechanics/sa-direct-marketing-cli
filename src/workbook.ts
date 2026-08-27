@@ -98,9 +98,9 @@ export { LOG_TAB, DNC_TAB };
  * Columns: Business Name, Phone Number, Email, Contact Person, ... + optional DNC.
  * Adds a "DNC (Y/N)" column if absent so we can flag matches.
  */
-export function readLeads(path: string): LogData {
+export function readLeads(path: string, leadTab = "All KZN Plumbers"): LogData {
   const wb = XLSX.readFile(path);
-  const leadWs = wb.Sheets["All KZN Plumbers"] ?? Object.values(wb.Sheets)[0];
+  const leadWs = wb.Sheets[leadTab] ?? Object.values(wb.Sheets)[0];
   const leadRows = XLSX.utils.sheet_to_json(leadWs, { header: 1, raw: false, defval: "" }) as any[][];
   let leadHeader = leadRows[0] ?? [];
   // ensure DNC column exists
@@ -138,9 +138,8 @@ export function readLeads(path: string): LogData {
 }
 
 /** Apply cleanse to a leads workbook: flip DNC in the leads tab + append register. */
-export function applyLeadsCleanse(data: LogData, result: CleanseResult): ReturnType<typeof XLSX.readFile> {
+export function applyLeadsCleanse(data: LogData, result: CleanseResult, leadTab = "All KZN Plumbers"): ReturnType<typeof XLSX.readFile> {
   const { logHeader, dncHeader, logRows } = data;
-  const leadTab = "All KZN Plumbers";
   const dncCol = {
     business: dncHeader.indexOf("Business Name"),
     contact: dncHeader.indexOf("Contact Person"),

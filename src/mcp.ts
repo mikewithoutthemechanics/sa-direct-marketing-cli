@@ -35,6 +35,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           logPath: { type: "string", description: "Path to compliance log .xlsx OR master leads .xlsx" },
           blocklistPath: { type: "string", description: "Path to NCC registry export .csv" },
           type: { type: "string", enum: ["log", "leads"], default: "log", description: "Workbook schema" },
+          tab: { type: "string", description: "Leads tab name when type=leads (e.g. 'All WC Leads')", default: "All KZN Plumbers" },
           write: { type: "boolean", default: false, description: "Apply DNC changes (default false = dry run)" },
         },
         required: ["logPath", "blocklistPath"],
@@ -47,8 +48,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   if (req.params.name !== "cleanse_marketing_list") {
     throw new Error("Unknown tool: " + req.params.name);
   }
-  const { logPath, blocklistPath, type = "log", write = false } = req.params.arguments as any;
-  const data = type === "leads" ? readLeads(logPath) : readLog(logPath);
+  const { logPath, blocklistPath, type = "log", tab = "All KZN Plumbers", write = false } = req.params.arguments as any;
+  const data = type === "leads" ? readLeads(logPath, tab) : readLog(logPath);
   const blocklist = readBlocklistCsv(blocklistPath);
   if (blocklist.length === 0) {
     return { content: [{ type: "text", text: "⚠ No blocklist entries. Export from https://eservice.thencc.org.za/ first." }], isError: true };
@@ -56,7 +57,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const result = cleanse(data.contacts, blocklist);
   let written = false;
   if (write) {
-    XLSX.writeFile(type === "leads" ? applyLeadsCleanse(data, result) : applyCleanse(data, result), logPath);
+    XLSX.writeFile(type === "leads" ? applyLeadsCleanse(data, result, tab) : applyCleanse(data, result), logPath);
     written = true;
   }
   const text =
