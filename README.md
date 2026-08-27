@@ -33,11 +33,15 @@ sa-dm cleanse --log KZN_Outreach_Compliance_Log.xlsx --blocklist ncc-export.csv
 
 # Apply DNC changes (flips matched rows, appends to DNC Register)
 sa-dm cleanse --log KZN_Outreach_Compliance_Log.xlsx --blocklist ncc-export.csv --write
+
+# Also supports the MASTER LEADS list (KZN_Plumbers_Master.xlsx style):
+sa-dm cleanse --log KZN_Plumbers_Master.xlsx --type leads --blocklist ncc-export.csv --write
+#   -> adds a "DNC (Y/N)" column if absent, flips matches, appends a DNC Register tab
 ```
 
-The compliance log is the workbook produced by the KZN outreach pipeline
-(`Consent & DNC Log` + `DNC Register` tabs). The blocklist CSV should have
-`phone`/`cell` and/or `email` columns (flexible headers).
+The `--type` switch selects the workbook schema:
+- `log` (default) — the compliance log with `Consent & DNC Log` + `DNC Register` tabs
+- `leads` — a master plumbers list (`All KZN Plumbers` tab); DNC column is created on write
 
 ## MCP server
 
@@ -45,8 +49,9 @@ The compliance log is the workbook produced by the KZN outreach pipeline
 node dist/mcp.js
 ```
 
-Exposes one tool: `cleanse_marketing_list(logPath, blocklistPath, write?)`.
-Wire it into Hermes or any MCP client that supports stdio servers.
+Exposes one tool: `cleanse_marketing_list(logPath, blocklistPath, type?, write?)`.
+Wire it into Hermes or any MCP client that supports stdio servers. Registered in
+Hermes as `sa-direct-marketing` (discovered + enabled).
 
 ## Compliance notes (not legal advice)
 
