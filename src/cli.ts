@@ -1,0 +1,60 @@
+#!/usr/bin/env node
+/**
+ * sa-dm — SA direct-marketing compliance CLI.
+ *
+ *   sa-dm cleanse --log compliance.xlsx --blocklist ncc-export.csv [--write]
+ *
+ * Cross-references your active marketing list (compliance log) against an NCC
+ * opt-out registry export. With --write it flips matched rows to DNC and appends
+ * to the DNC Register; without --write it is a dry run (reports matches only).
+ */
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+import { readLog, applyCleanse } from "./workbook.js";
+import { readBlocklistCsv } from "./blocklist.js";
+import { cleanse } from "./cleanse.js";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const XLSX = require("xlsx");
+
+const argv = yargs(hideBin(process.argv))
+  .command(
+    "cleanse",
+    "Cleanse a compliance log against an NCC opt-out registry blocklist export",
+    (y) =>
+      y
+        .option("log", { type: "string", demandOption: true, describe: "Path to compliance log .xlsx (native or exported)" })
+        .option("blocklist", { type: "string", demandOption: true, describe: "Path to NCC registry export .csv" })
+        .option("write", { type: "boolean", default: false, describe: "Actually apply DNC changes (default: dry run)" })
+        .option("out", { type: "string", describe: "Output path when --write (defaults to overwriting --log)" }),
+    (args) => {
+      const data = readLog(args.log);
+      const blocklist = readBlocklistCsv(args.blocklist);
+      if (blocklist.length === 0) {
+        console.error("⚠ No blocklist entries loaded. Did you export from https://eservice.thencc.org.za/ ?");
+        process.exit(2);
+      }
+      const result = cleanse(data.contacts, blocklist);
+      console.log(`Checked active contacts : ${result.checked}`);
+      console.log(`Blocklist size          : ${result.blocklistSize}`);
+      console.log(`Matched (-> DNC)         : ${result.matched.length}`);
+      for (const m of result.matched) {
+        console.log(`   • ${m.business}${m.contact ? " (" + m.contact + ")" : ""} — ${m.notes}`);
+      }
+      if (result.matched.length === 0) {
+        console.log("✓ No registry matches. List is clean for this month.");
+      }
+      if (args.write && result.matched.length > 0) {
+        const wb = applyCleanse(data, result);
+        const out = args.out ?? args.log;
+        XLSX.writeFile(wb, out);
+        console.log(`✓ Wrote DNC updates to ${out}`);
+      } else if (args.write) {
+        console.log("(dry run — no matches, nothing to write)");
+      } else {
+        console.log("(dry run — re-run with --write to apply DNC changes)");
+      }
+    }
+  )
+  .demandCommand(1)
+  .help().argv;

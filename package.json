@@ -1,0 +1,28 @@
+{
+  "name": "sa-direct-marketing-cli",
+  "version": "0.1.0",
+  "description": "POPIA/CPA 2026 compliant direct-marketing CLI + MCP server: monthly NCC opt-out registry cleanse for SA outreach lists.",
+  "type": "module",
+  "bin": {
+    "sa-dm": "./dist/cli.js"
+  },
+  "main": "./dist/mcp.js",
+  "scripts": {
+    "build": "tsc",
+    "cleanse": "node dist/cli.js cleanse",
+    "mcp": "node dist/mcp.js"
+  },
+  "keywords": ["popia", "cpa", "south-africa", "opt-out-registry", "ncc", "direct-marketing", "compliance"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "csv-parse": "^5.5.0",
+    "xlsx": "^0.18.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/yargs": "^17.0.33",
+    "typescript": "^5.6.0"
+  }
+}
