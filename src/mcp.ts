@@ -9,7 +9,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { readLog, applyCleanse } from "./workbook.js";
+import { readLog, applyCleanse, readLeads, applyLeadsCleanse } from "./workbook.js";
 import { readBlocklistCsv } from "./blocklist.js";
 import { cleanse } from "./cleanse.js";
 import { createRequire } from "module";
@@ -32,8 +32,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       inputSchema: {
         type: "object",
         properties: {
-          logPath: { type: "string", description: "Path to compliance log .xlsx" },
+          logPath: { type: "string", description: "Path to compliance log .xlsx OR master leads .xlsx" },
           blocklistPath: { type: "string", description: "Path to NCC registry export .csv" },
+          type: { type: "string", enum: ["log", "leads"], default: "log", description: "Workbook schema" },
           write: { type: "boolean", default: false, description: "Apply DNC changes (default false = dry run)" },
         },
         required: ["logPath", "blocklistPath"],
@@ -46,8 +47,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   if (req.params.name !== "cleanse_marketing_list") {
     throw new Error("Unknown tool: " + req.params.name);
   }
-  const { logPath, blocklistPath, write = false } = req.params.arguments as any;
-  const data = readLog(logPath);
+  const { logPath, blocklistPath, type = "log", write = false } = req.params.arguments as any;
+  const data = type === "leads" ? readLeads(logPath) : readLog(logPath);
   const blocklist = readBlocklistCsv(blocklistPath);
   if (blocklist.length === 0) {
     return { content: [{ type: "text", text: "⚠ No blocklist entries. Export from https://eservice.thencc.org.za/ first." }], isError: true };
@@ -55,7 +56,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const result = cleanse(data.contacts, blocklist);
   let written = false;
   if (write && result.matched.length > 0) {
-    XLSX.writeFile(applyCleanse(data, result), logPath);
+    XLSX.writeFile(type === "leads" ? applyLeadsCleanse(data, result) : applyCleanse(data, result), logPath);
     written = true;
   }
   const text =

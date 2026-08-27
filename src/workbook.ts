@@ -92,3 +92,84 @@ export function applyCleanse(data: LogData, result: CleanseResult): ReturnType<t
 }
 
 export { LOG_TAB, DNC_TAB };
+
+/**
+ * Read the MASTER LEADS workbook (KZN_Plumbers_Master.xlsx style).
+ * Columns: Business Name, Phone Number, Email, Contact Person, ... + optional DNC.
+ * Adds a "DNC (Y/N)" column if absent so we can flag matches.
+ */
+export function readLeads(path: string): LogData {
+  const wb = XLSX.readFile(path);
+  const leadWs = wb.Sheets["All KZN Plumbers"] ?? Object.values(wb.Sheets)[0];
+  const leadRows = XLSX.utils.sheet_to_json(leadWs, { header: 1, raw: false, defval: "" }) as any[][];
+  let leadHeader = leadRows[0] ?? [];
+  // ensure DNC column exists
+  let dncIdx = leadHeader.indexOf("DNC (Y/N)");
+  if (dncIdx < 0) {
+    dncIdx = leadHeader.length;
+    leadHeader = [...leadHeader, "DNC (Y/N)"];
+    leadRows[0] = leadHeader;
+  }
+  const contacts: Contact[] = [];
+  for (let i = 1; i < leadRows.length; i++) {
+    const row = leadRows[i];
+    if (!row || row.every((c: any) => c === "")) continue;
+    const get = (name: string) => {
+      const idx = leadHeader.indexOf(name);
+      return idx >= 0 && idx < row.length ? String(row[idx] ?? "") : "";
+    };
+    contacts.push({
+      rowId: String(i),
+      business: get("Business Name"),
+      contact: get("Contact Person") || undefined,
+      email: get("Email") || undefined,
+      phone: get("Phone Number") || undefined,
+      channel: undefined,
+      consentResponse: "",
+      dnc: get("DNC (Y/N)") || undefined,
+      notes: get("Notes") || undefined,
+    });
+  }
+  // DNC register kept in the same workbook on a dedicated tab
+  const dncWs = wb.Sheets[DNC_TAB];
+  const dncRows = dncWs ? (XLSX.utils.sheet_to_json(dncWs, { header: 1, raw: false, defval: "" }) as any[][]) : [[ "Business Name", "Contact Person", "Channel", "Date Refused", "Notes" ]];
+  const dncHeader = dncRows[0] ?? ["Business Name", "Contact Person", "Channel", "Date Refused", "Notes"];
+  return { contacts, logRows: leadRows, logHeader: leadHeader, dncRows, dncHeader, wb };
+}
+
+/** Apply cleanse to a leads workbook: flip DNC in the leads tab + append register. */
+export function applyLeadsCleanse(data: LogData, result: CleanseResult): ReturnType<typeof XLSX.readFile> {
+  const { logHeader, dncHeader, logRows } = data;
+  const leadTab = "All KZN Plumbers";
+  const dncCol = {
+    business: dncHeader.indexOf("Business Name"),
+    contact: dncHeader.indexOf("Contact Person"),
+    channel: dncHeader.indexOf("Channel"),
+    date: dncHeader.indexOf("Date Refused"),
+    notes: dncHeader.indexOf("Notes"),
+  };
+  const logDncCol = logHeader.indexOf("DNC (Y/N)");
+  const today = new Date().toISOString().slice(0, 10);
+  const matchedIds = new Set(result.matched.map((m) => m.rowId));
+  for (let i = 1; i < logRows.length; i++) {
+    const rid = String(i);
+    if (matchedIds.has(rid) && logDncCol >= 0) {
+      logRows[i][logDncCol] = "YES";
+    }
+  }
+  const dncOut = [...data.dncRows];
+  for (const m of result.matched) {
+    const row: any[] = new Array(dncHeader.length).fill("");
+    if (dncCol.business >= 0) row[dncCol.business] = m.business;
+    if (dncCol.contact >= 0) row[dncCol.contact] = m.contact ?? "";
+    if (dncCol.channel >= 0) row[dncCol.channel] = m.channel ?? "leads";
+    if (dncCol.date >= 0) row[dncCol.date] = today;
+    if (dncCol.notes >= 0) row[dncCol.notes] = "NCC opt-out registry monthly cleanse " + today + (m.notes ? " — " + m.notes : "");
+    dncOut.push(row);
+  }
+  const wb = data.wb;
+  wb.Sheets[leadTab] = XLSX.utils.aoa_to_sheet(logRows);
+  wb.Sheets[DNC_TAB] = XLSX.utils.aoa_to_sheet(dncOut);
+  return wb;
+}
+

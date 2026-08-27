@@ -10,7 +10,7 @@
  */
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { readLog, applyCleanse } from "./workbook.js";
+import { readLog, applyCleanse, readLeads, applyLeadsCleanse } from "./workbook.js";
 import { readBlocklistCsv } from "./blocklist.js";
 import { cleanse } from "./cleanse.js";
 import { createRequire } from "module";
@@ -20,21 +20,23 @@ const XLSX = require("xlsx");
 const argv = yargs(hideBin(process.argv))
   .command(
     "cleanse",
-    "Cleanse a compliance log against an NCC opt-out registry blocklist export",
+    "Cleanse a compliance log or leads list against an NCC opt-out registry blocklist export",
     (y) =>
       y
-        .option("log", { type: "string", demandOption: true, describe: "Path to compliance log .xlsx (native or exported)" })
+        .option("log", { type: "string", demandOption: true, describe: "Path to compliance log .xlsx OR master leads .xlsx" })
         .option("blocklist", { type: "string", demandOption: true, describe: "Path to NCC registry export .csv" })
+        .option("type", { type: "string", choices: ["log", "leads"], default: "log", describe: "Workbook schema: 'log' (Consent & DNC Log) or 'leads' (master plumbers list)" })
         .option("write", { type: "boolean", default: false, describe: "Actually apply DNC changes (default: dry run)" })
         .option("out", { type: "string", describe: "Output path when --write (defaults to overwriting --log)" }),
     (args) => {
-      const data = readLog(args.log);
+      const data = args.type === "leads" ? readLeads(args.log) : readLog(args.log);
       const blocklist = readBlocklistCsv(args.blocklist);
       if (blocklist.length === 0) {
         console.error("⚠ No blocklist entries loaded. Did you export from https://eservice.thencc.org.za/ ?");
         process.exit(2);
       }
       const result = cleanse(data.contacts, blocklist);
+      console.log(`Mode                    : ${args.type}`);
       console.log(`Checked active contacts : ${result.checked}`);
       console.log(`Blocklist size          : ${result.blocklistSize}`);
       console.log(`Matched (-> DNC)         : ${result.matched.length}`);
@@ -45,7 +47,7 @@ const argv = yargs(hideBin(process.argv))
         console.log("✓ No registry matches. List is clean for this month.");
       }
       if (args.write && result.matched.length > 0) {
-        const wb = applyCleanse(data, result);
+        const wb = args.type === "leads" ? applyLeadsCleanse(data, result) : applyCleanse(data, result);
         const out = args.out ?? args.log;
         XLSX.writeFile(wb, out);
         console.log(`✓ Wrote DNC updates to ${out}`);
