@@ -1,0 +1,40 @@
+docs: rebuild one-pager for conversion, keeping the verified legal position
+
+The page was factually correct but did not sell. A compliance page that
+leads with regulation asks the reader to do homework before they will
+listen. This version leads with the consequence and keeps the citations
+in the footer where they belong.
+
+Conversion changes:
+- Headline is now the consequence, not the product name:
+  "You are still messaging people who asked you to stop." Nobody wakes
+  up wanting a cleanse; they do worry about fines.
+- Restructured to problem > threat > offer > price > objections > CTA,
+  which is the order a cold reader can follow.
+- Risk moved above the fold as a dedicated panel instead of a footnote.
+- "Free check" is now the primary CTA and is given a three-step "how it
+  works", because a free concrete offer converts better than a
+  subscription. The subscription is the second ask, after the audit.
+- Added an objection-handling section (too small, "we only WhatsApp",
+  "isn't this just POPIA", "is this legal advice") using the verified
+  facts rather than new claims.
+- Three CTAs instead of one, all to cal.agentcy.co.za.
+- Visual: dark hero, larger type scale, tagged fact cards, one
+  "most popular" tier, mobile breakpoints tightened. Readable on a
+  phone, which is how this audience will actually open it.
+
+Honesty retained - this is deliberate and not an oversight:
+- No invented deadline. The "phased in, no deadline announced" position
+  is kept, and reframed: we will not invent urgency the regulator has
+  not created. It now argues for acting early rather than against.
+- Unverified NCC fee figures still not quoted; passed through at cost
+  and confirmed at onboarding.
+- "Not legal advice" now appears in the objection section, where a
+  sceptical prospect will actually look for it.
+- No social proof or client counts, because there are none yet. Nothing
+  on this page is fabricated.
+
+Verified after rewrite: all false claims still absent, all verified
+claims still present (B2B scope, opt-in override, industry blocks, the
+R1m/10% penalty, the 15 Apr 2026 effective date, phased-in timing, fees
+at cost, not-legal-advice). Tags balanced 43/43, no encoding damage.
