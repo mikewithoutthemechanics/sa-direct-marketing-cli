@@ -360,5 +360,39 @@
     this._raf = global.requestAnimationFrame(this._loop);
   };
 
-  global.RegistryGate = { create: function (c, o) { return new Gate(c, o); } };
+  /**
+   * Drive the scene with a specific set of numbers, so an interactive
+   * demo and its results table can never disagree. `isBlocked` is a
+   * predicate per record.
+   */
+  Gate.prototype.setRecords = function (nums, isBlocked) {
+    this.records.length = 0;
+    this.caught = 0;
+    this.passed = 0;
+    var self = this;
+    var cols = Math.max(3, Math.ceil(Math.sqrt(nums.length)));
+    nums.forEach(function (n, i) {
+      var col = i % cols;
+      var row = Math.floor(i / cols);
+      var a = (col / cols) * TAU;
+      var r = 0.35 + (row / cols) * (self.radius - 0.7);
+      self.records.push({
+        x: Math.cos(a) * r,
+        y: 1.6 + row * 0.85 + Math.random() * 0.3,
+        z: Math.sin(a) * r,
+        spin: 0, ang: 0,
+        size: 0.085,
+        blocked: isBlocked ? !!isBlocked(n) : false,
+        state: "falling",
+        flash: 0,
+        life: 0
+      });
+    });
+    // keep the continuous fall going afterwards
+    this._refill = nums.length;
+  };
+
+  global.RegistryGate = {
+    create: function (c, o) { return new Gate(c, o); }
+  };
 })(typeof window !== "undefined" ? window : this);
