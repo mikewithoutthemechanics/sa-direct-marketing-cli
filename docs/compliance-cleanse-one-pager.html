@@ -9,7 +9,7 @@
   :root{
     --ink:#0E1116; --steel:#4A5260; --surface:#F5F6F8; --paper:#FFFFFF;
     --mute:#8B93A1; --accent:#F5A524; --accent2:#B45309; --line:#E3E7ED;
-    --red:#C0392B; --redbg:#FDF3F2; --radius:18px;
+    --accent-soft:#FEF3E2; --red:#C0392B; --redbg:#FDF3F2; --radius:18px;
     --maxw:780px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -37,7 +37,8 @@
   .btn{display:inline-block;background:var(--accent);color:#0B1020;text-decoration:none;
     font-weight:700;padding:16px 30px;border-radius:100px;font-size:16px;
     box-shadow:0 10px 30px -10px rgba(245,165,36,.55);transition:transform .12s ease}
-  .btn:hover{transform:translateY(-2px)}
+    .btn:hover{transform:translateY(-2px)}
+  .btn.lg{font-size:17px;padding:19px 40px}
   .micro{color:#8892A3;font-size:13px;position:relative;z-index:1}
 
   /* ---------- BODY ---------- */
@@ -65,17 +66,16 @@
   .risk p{color:#6B4440;margin-top:10px;font-size:15.5px}
 
   /* audit */
-  .offer{background:linear-gradient(180deg,#0E1116,#1A2130);color:#fff;border-radius:24px;
-    padding:34px 32px;margin:26px 0 10px}
-  .offer h3{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
-  .offer p{color:#B9C0CD;margin-bottom:20px;font-size:16px}
+  .offer{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--accent);
+    border-radius:var(--radius);padding:30px 28px;margin:10px 0}
+  .offer h3{font-size:23px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+  .offer p{color:var(--steel);margin-bottom:22px;font-size:16.5px}
   .offer ol{list-style:none;counter-reset:o;margin-bottom:24px}
-  .offer ol li{counter-increment:o;position:relative;padding-left:38px;margin:12px 0;
-    color:#E4E8EF;font-size:16px}
+  .offer ol li{counter-increment:o;position:relative;padding-left:38px;margin:13px 0;
+    color:var(--steel);font-size:16px}
   .offer ol li::before{content:counter(o);position:absolute;left:0;top:1px;width:24px;height:24px;
-    background:var(--accent);color:#0B1020;border-radius:50%;display:grid;place-items:center;
-    font-size:13px;font-weight:800}
-  .offer .btn{background:#fff;box-shadow:none}
+    background:var(--accent-soft);color:var(--accent2);border-radius:50%;
+    display:grid;place-items:center;font-size:13px;font-weight:800}
 
   /* pricing */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
@@ -101,10 +101,10 @@
   .qa .a{color:var(--steel);font-size:16px}
 
   /* final cta */
-  .close{background:var(--ink);color:#fff;border-radius:24px;padding:38px 34px;margin-top:14px;text-align:center}
-  .close h3{font-size:clamp(22px,3.4vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
-  .close p{color:#B9C0CD;margin:12px auto 24px;max-width:46ch;font-size:16.5px}
-  .close .btn{background:var(--accent)}
+  .close{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:36px 32px;margin-top:8px;text-align:center}
+  .close h3{font-size:clamp(21px,3.2vw,27px);font-weight:800;letter-spacing:-.02em;line-height:1.22}
+  .close p{color:var(--steel);margin:12px auto 24px;max-width:46ch;font-size:16.5px}
 
   .foot{font-size:12.5px;color:var(--mute);margin-top:34px;line-height:1.65}
 
@@ -128,7 +128,7 @@
       permanently, and by <b style="color:#fff">industry</b>, not just by business. It covers the WhatsApps
       and emails you send to <b style="color:#fff">companies</b>, not only consumers. And nobody tells you when it happens.</p>
     <div class="cta-top">
-      <a class="btn" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
+      <a class="btn lg" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
       <span class="micro">10 minutes. No obligation. No sales pitch.</span>
     </div>
   </div>
@@ -242,7 +242,7 @@
   <div class="close">
     <h3>You do not have to do anything about this today.</h3>
     <p>But you should know whether your list is clean. That is a ten-minute question, and the answer is yours either way.</p>
-    <a class="btn" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
+    <a class="btn lg" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
   </div>
 
   <p class="foot">Agentcy (Pty) Ltd &middot; The NCC opt-out registry operates under the Consumer Protection Act

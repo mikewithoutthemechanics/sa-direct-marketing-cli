@@ -1,0 +1,23 @@
+style: make the page one continuous surface
+
+The page flipped between dark and light three times: dark hero, white
+body, dark offer panel, white body, dark closing CTA. That reads as a
+flicker rather than a design, and it was a fair criticism.
+
+Rule applied: exactly ONE dark region - the hero - then an uninterrupted
+light page. The dark block is what stops the scroll and earns the
+attention; a second and third one diluted it.
+
+- .offer: dark gradient panel -> light card with a 4px amber top rule,
+  so it is distinguished by border and accent rather than by inverting
+  the page
+- .close: dark panel -> light card, keeping the centred layout
+- step counters: solid amber -> soft amber wash with dark amber text
+  (matches the new --accent-soft token and keeps contrast)
+- added --accent-soft token and a .btn.lg size; the two hero/final CTAs
+  use it so the primary action stays the largest thing on the page
+
+Verified after the change: one background:var(--ink) rule remains (the
+hero), zero white text nodes left in the body, all div tags balanced
+43/43, no encoding damage. Every verified legal claim still present and
+the invented deadline and unverified fee figures still absent.
