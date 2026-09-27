@@ -1,0 +1,32 @@
+fix: the gate caption was covering the diagram it describes
+
+The caption was an absolutely positioned overlay pinned to the bottom of
+the canvas, with a white gradient over the last few pixels. It was
+sitting directly on top of two things the visitor needs to see:
+
+- the CHECKED / SUPPRESSED counters, which the engine draws at the
+  bottom of the canvas
+- the last few rows of the DNC register
+
+So the caption was obscuring exactly the evidence it was explaining.
+
+Changes:
+- .gate-cap is no longer an overlay. It sits in normal flow beneath the
+  canvas with a top border and a surface tint, so it reads as a caption
+  to the diagram rather than something floating over it.
+- the copy was also stale: it still described the deleted 3D gate
+  ("blocked records are caught and suppressed, the rest pass through").
+  Rewritten to describe what the sweep actually shows - contacts
+  crossing the amber line, blocked ones moving into the register.
+  This had survived a previous edit because the replacement string
+  spanned a line break and silently failed to match.
+- the HUD is inset 12px from the bottom edge instead of 6px, so
+  descenders are not clipped on a low-DPI screen
+- the register now reserves a 34px footer band so its rows always stop
+  above the counters rather than running into them
+
+Verified: caption carries no position:absolute; all tags balanced (body
+details 2/2, the apparent third is the literal word in a CSS comment);
+no encoding damage; engine invariants still hold over 900 steps and in
+demo mode (6 checked, 3 suppressed, 3 cleared; register holds every
+blocked number and no cleared ones). Legal claims unchanged.

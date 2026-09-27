@@ -367,7 +367,8 @@
     c.font = "500 11px " + MONO;
     c.textBaseline = "middle";
 
-    var cap = Math.max(3, Math.floor((this.h - this.regTop - 26) / this.rowH));
+    // stop the register above the HUD band so the two never overlap
+    var cap = Math.max(3, Math.floor((this.h - this.regTop - 34) / this.rowH));
     for (var i = 0; i < Math.min(this.register.length, cap); i++) {
       var e = this.register[i];
       var y = this.regTop + 8 + i * this.rowH;
@@ -399,12 +400,16 @@
     c.save();
     c.font = "700 11px " + SANS;
     c.textBaseline = "bottom";
+    // sit the counters inside a small inset, not hard against the edge,
+    // so descenders are not clipped on a low-DPI screen
+    var y = this.h - 12;
+
     c.textAlign = "left";
     c.fillStyle = this.steel;
-    c.fillText("CHECKED " + this.checked, 14, this.h - 6);
+    c.fillText("CHECKED " + this.checked, 16, y);
     c.textAlign = "right";
     c.fillStyle = this.accentDeep;
-    c.fillText("SUPPRESSED " + this.suppressed, this.w - 14, this.h - 6);
+    c.fillText("SUPPRESSED " + this.suppressed, this.w - 16, y);
     c.restore();
   };
 
