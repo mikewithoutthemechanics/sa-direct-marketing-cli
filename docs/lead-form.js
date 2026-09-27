@@ -35,6 +35,10 @@
       var v = String(fd.get(keys[i]) || "").trim();
       if (v) out[keys[i]] = v;
     }
+    var file = document.getElementById("lf-file");
+    if (file && file.files && file.files[0]) {
+      out.list_file = file.files[0].name;
+    }
     return out;
   }
 
@@ -54,8 +58,15 @@
       "WhatsApp: " + (data.phone || "-") + "\n" +
       "List size: " + (data.list_size || "-") + "\n" +
       "Channel: " + (data.channel || "-") + "\n" +
+      (data.list_file ? "Attached list: " + data.list_file + " (see note below)\n" : "") +
       "Notes: " + (data.note || "-") + "\n\n" +
-      "Requested via the Compliance Cleanse one-pager.";
+      "Requested via the Compliance Cleanse one-pager.\n";
+    if (data.list_file) {
+      body += "\nNOTE: I tried to attach my list as '" + data.list_file +
+              "' but this email was sent from the website, so the file did not\n" +
+              "come with it. I will reply to this email with the file attached, or\n" +
+              "send it on WhatsApp if that is easier.\n";
+    }
     return "mailto:hello@agentcy.co.za?subject=" + encodeURIComponent(subject) +
            "&body=" + encodeURIComponent(body);
   }
@@ -81,8 +92,11 @@
     if (!endpoint) {
       // no backend configured: hand the lead to the mail client instead
       window.location.href = buildMailto(data);
-      done(true, "Your email app should have opened with the details filled in. " +
-                 "If nothing happened, email hello@agentcy.co.za directly.");
+      done(true, data.list_file
+        ? "Your email app should have opened with the details filled in. Please attach " +
+          "your list file to that email before sending - we cannot receive it from the website."
+        : "Your email app should have opened with the details filled in. " +
+          "If nothing happened, email hello@agentcy.co.za directly.");
       return;
     }
 
@@ -92,7 +106,10 @@
       body: JSON.stringify(data)
     }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
-      done(true, "Received. We run these against the live registry and reply within one working day.");
+      done(true, data.list_file
+        ? "Received. We will run the audit and reply within one working day. If you attached a " +
+          "list it did not come with this form - reply to our email with the file attached."
+        : "Received. We run these against the live registry and reply within one working day.");
     }).catch(function (err) {
       // never swallow a lead
       window.location.href = buildMailto(data);

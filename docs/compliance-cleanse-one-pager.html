@@ -399,6 +399,11 @@
             <option value="">Choose...</option><option>WhatsApp</option>
             <option>SMS</option><option>Email</option><option>All three</option>
           </select></div>
+        <div class="full">
+          <label for="lf-file">Attach your list (optional, .csv / .xlsx / .txt)</label>
+          <input id="lf-file" name="list_file" type="file"
+            accept=.csv,.xlsx,.xls,.txt,text/csv,application/vnd.ms-excel">
+        </div>
         <div class="full"><label for="lf-note">Anything we should know?</label>
           <textarea id="lf-note" name="note" rows="3"
             placeholder="e.g. we blast 1,200 plumbers on the first of every month"></textarea></div>
@@ -419,6 +424,18 @@
 </main>
 
 
+
+
+<!-- ===================================================================
+     FORM ENDPOINT - set this before deploying.
+     Without it the form falls back to opening the visitor's mail client,
+     which on a phone loses most submissions.
+     Pick ONE and put its URL below:
+       Formspree  https://formspree.io/f/xxxxxxx   (free tier, 50/mo)
+       Basin      https://basin.cc/api/xxxxxxx
+       Netlify    use name="lead" netlify on the form and ignore this line
+     =================================================================== -->
+<script>window.AGENTCY_FORM_ENDPOINT = "";</script>
 <script src="try-it.js"></script>
 <script src="lead-form.js"></script>
 <script src="registry-sweep.js"></script>
