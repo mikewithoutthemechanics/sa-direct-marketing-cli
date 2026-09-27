@@ -39,6 +39,7 @@ const argv = yargs(hideBin(process.argv))
       const result = cleanse(data.contacts, blocklist);
       console.log(`Mode                    : ${args.type}${args.type === "leads" ? " (tab: " + args.tab + ")" : ""}`);
       console.log(`Checked active contacts : ${result.checked}`);
+      console.log(`Already DNC (skipped)   : ${result.alreadyDnc.length}`);
       console.log(`Blocklist size          : ${result.blocklistSize}`);
       console.log(`Matched (-> DNC)         : ${result.matched.length}`);
       for (const m of result.matched) {

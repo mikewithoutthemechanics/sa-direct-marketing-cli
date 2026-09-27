@@ -9,6 +9,42 @@ import { Contact, CleanseResult } from "./cleanse.js";
 
 const LOG_TAB = "Consent & DNC Log";
 const DNC_TAB = "DNC Register";
+/**
+ * Read a cell as trimmed text. Returns undefined when the column is absent
+ * or the cell is blank. Preserves meaningful falsy values such as "0".
+ *
+ * NOTE: the previous code used `row[idx] ? String(row[idx]) : undefined`,
+ * which silently turned a cell containing "0" or "FALSE" into undefined,
+ * and `String(row[idx] ?? i)`, which does NOT fall through on "" - so a
+ * blank RowID produced "" and every blank-RowID row then matched any
+ * other blank-RowID row, mass-flagging unrelated contacts as DNC.
+ */
+function cellText(row: any[], header: string[], name: string): string | undefined {
+  const idx = header.indexOf(name);
+  if (idx < 0) return undefined;
+  const v = row[idx];
+  if (v === null || v === undefined) return undefined;
+  const s = String(v).trim();
+  return s === "" ? undefined : s;
+}
+
+/**
+ * Resolve a required tab. Falls back only for READ-ONLY inspection
+ * (SA_DM_ALLOW_FALLBACK=1); otherwise exits rather than risk mutating the
+ * wrong sheet - sheet 0 may be the DNC Register itself.
+ */
+function requireTab(wb: any, tab: string, path: string, fallback: any): any {
+  const ws = wb.Sheets[tab];
+  if (ws) return ws;
+  if (process.env.SA_DM_ALLOW_FALLBACK === "1") {
+    console.warn(`WARN: tab "${tab}" not found; using a fallback tab. Read-only.`);
+    return fallback;
+  }
+  console.error(`ERROR: tab "${tab}" not found in ${path}`);
+  console.error(`Tabs present: ${Object.keys(wb.Sheets).join(", ")}`);
+  console.error("Refusing to write. Create the tab, or set SA_DM_ALLOW_FALLBACK=1 for a read-only look.");
+  process.exit(2);
+}
 
 export interface LogData {
   contacts: Contact[];
@@ -21,7 +57,7 @@ export interface LogData {
 
 export function readLog(path: string): LogData {
   const wb = XLSX.readFile(path);
-  const logWs = wb.Sheets[LOG_TAB] ?? Object.values(wb.Sheets)[0];
+  const logWs = requireTab(wb, LOG_TAB, path, Object.values(wb.Sheets)[0]);
   const logRows = XLSX.utils.sheet_to_json(logWs, { header: 1, raw: false, defval: "" }) as any[][];
   const logHeader = logRows[0] ?? [];
   const dncWs = wb.Sheets[DNC_TAB];
@@ -33,15 +69,15 @@ export function readLog(path: string): LogData {
     const row = logRows[i];
     if (!row || row.every((c: any) => c === "")) continue;
     contacts.push({
-      rowId: String(row[logHeader.indexOf("RowID")] ?? i),
+      rowId: cellText(row, logHeader, "RowID") ?? String(i),
       business: String(row[logHeader.indexOf("Business Name")] ?? ""),
-      contact: row[logHeader.indexOf("Contact Person")] ? String(row[logHeader.indexOf("Contact Person")]) : undefined,
-      email: row[logHeader.indexOf("Email")] ? String(row[logHeader.indexOf("Email")]) : undefined,
-      phone: row[logHeader.indexOf("Phone")] ? String(row[logHeader.indexOf("Phone")]) : undefined,
-      channel: row[logHeader.indexOf("Primary Channel")] ? String(row[logHeader.indexOf("Primary Channel")]) : undefined,
-      consentResponse: row[logHeader.indexOf("Consent Response")] ? String(row[logHeader.indexOf("Consent Response")]) : undefined,
-      dnc: row[logHeader.indexOf("DNC (Y/N)")] ? String(row[logHeader.indexOf("DNC (Y/N)")]) : undefined,
-      notes: row[logHeader.indexOf("Notes")] ? String(row[logHeader.indexOf("Notes")]) : undefined,
+      contact: cellText(row, logHeader, "Contact Person"),
+      email: cellText(row, logHeader, "Email"),
+      phone: cellText(row, logHeader, "Phone"),
+      channel: cellText(row, logHeader, "Primary Channel"),
+      consentResponse: cellText(row, logHeader, "Consent Response"),
+      dnc: cellText(row, logHeader, "DNC (Y/N)"),
+      notes: cellText(row, logHeader, "Notes"),
     });
   }
   return { contacts, logRows, logHeader, dncRows, dncHeader, wb };
@@ -67,7 +103,7 @@ export function applyCleanse(data: LogData, result: CleanseResult): ReturnType<t
   const matchedIds = new Set(result.matched.map((m) => m.rowId));
   // flip DNC in log
   for (let i = 1; i < logRows.length; i++) {
-    const rid = String(logRows[i][logHeader.indexOf("RowID")] ?? i);
+    const rid = cellText(logRows[i], logHeader, "RowID") ?? String(i);
     if (matchedIds.has(rid)) {
       if (logDncCol >= 0) logRows[i][logDncCol] = "YES";
       if (logNotesCol >= 0) logRows[i][logNotesCol] = (logRows[i][logNotesCol] ? logRows[i][logNotesCol] + "; " : "") + "DNC: NCC opt-out registry " + today;
@@ -87,6 +123,10 @@ export function applyCleanse(data: LogData, result: CleanseResult): ReturnType<t
 
   const wb = data.wb;
   wb.Sheets[LOG_TAB] = XLSX.utils.aoa_to_sheet(logRows);
+  // SheetJS writes ONLY the tabs listed in wb.SheetNames. Assigning wb.Sheets
+  // alone silently DROPS the DNC Register: the log would show a suppression
+  // with no register entry surviving. Register the name too.
+  if (!wb.SheetNames.includes(DNC_TAB)) wb.SheetNames.push(DNC_TAB);
   wb.Sheets[DNC_TAB] = XLSX.utils.aoa_to_sheet(dncOut);
   return wb;
 }
@@ -100,7 +140,7 @@ export { LOG_TAB, DNC_TAB };
  */
 export function readLeads(path: string, leadTab = "All KZN Plumbers"): LogData {
   const wb = XLSX.readFile(path);
-  const leadWs = wb.Sheets[leadTab] ?? Object.values(wb.Sheets)[0];
+  const leadWs = requireTab(wb, leadTab, path, Object.values(wb.Sheets)[0]);
   const leadRows = XLSX.utils.sheet_to_json(leadWs, { header: 1, raw: false, defval: "" }) as any[][];
   let leadHeader = leadRows[0] ?? [];
   // ensure DNC column exists
@@ -168,7 +208,13 @@ export function applyLeadsCleanse(data: LogData, result: CleanseResult, leadTab 
   }
   const wb = data.wb;
   wb.Sheets[leadTab] = XLSX.utils.aoa_to_sheet(logRows);
+  if (!wb.SheetNames.includes(leadTab)) wb.SheetNames.push(leadTab);
   wb.Sheets[DNC_TAB] = XLSX.utils.aoa_to_sheet(dncOut);
+  // SheetJS writes ONLY the tabs listed in wb.SheetNames. Assigning wb.Sheets
+  // alone silently DROPS the DNC Register: the log would show a suppression
+  // with no register entry surviving. Register the name too.
+  if (!wb.SheetNames.includes(DNC_TAB)) wb.SheetNames.push(DNC_TAB);
   return wb;
 }
+
 

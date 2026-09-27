@@ -66,3 +66,24 @@ Hermes as `sa-direct-marketing` (discovered + enabled).
 ## License
 
 MIT
+
+## Tests
+
+```bash
+npm test
+```
+
+Runs 18 checks covering the `rowId` collision regression, DNC Register
+persistence, phone normalisation (incl. `+27` / `27` / `0027` prefixes),
+landline rejection, blocklist header scoring and both workbook schemas.
+
+## Notes on failure modes
+
+- **Missing tab = refuse, don't guess.** `cleanse` exits 2 if the expected
+  tab is absent rather than falling back to the first sheet, which may be
+  the DNC Register itself. Set `SA_DM_ALLOW_FALLBACK=1` for a read-only look.
+- **Only SA mobiles are matchable.** `isMobileNumber` accepts `07x`/`08x`
+  only, so landlines are never written to the DNC Register.
+- **Blank `RowID` cells fall back to the row index.** Previously a blank
+  `RowID` produced an empty identifier, so one match suppressed every
+  blank-`RowID` row in the file.

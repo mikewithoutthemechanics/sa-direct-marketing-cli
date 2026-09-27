@@ -36,16 +36,39 @@ export interface CleanseResult {
   checked: number;
   matched: Contact[];
   unmatched: Contact[];
+  /** Already suppressed before this run - not re-checked, NOT safe to market. */
+  alreadyDnc: Contact[];
   blocklistSize: number;
   generatedAt: string;
 }
 
-/** Normalize a phone: strip spaces, leading +27 -> 0, keep digits. */
+/**
+ * Normalize a SA phone to local form: 0XX XXX XXXX.
+ * Handles +27, 27, 0027 and 00 international prefixes.
+ *
+ * The "00" prefix matters: a registry export containing "0027821234567"
+ * would previously fail to match a list entry of "0821234567" - a SILENT
+ * MISS, meaning a consumer who blocked us stays live on the list.
+ * The "27" branch also had a defect: it built "0" + the full number
+ * instead of dropping the prefix, producing "027821234567".
+ */
 export function normalizePhone(p: string): string {
-  let s = (p || "").replace(/[\s\-()]/g, "");
+  let s = (p || "").replace(/[\s\-().]/g, "");
   if (s.startsWith("+27")) s = "0" + s.slice(3);
-  if (s.startsWith("27") && s.length === 11) s = "0" + s;
+  if (s.startsWith("0027")) s = "0" + s.slice(4);
+  if (s.startsWith("27") && s.length === 11) s = "0" + s.slice(2);
   return s.replace(/[^0-9]/g, "");
+}
+
+/**
+ * Is this a matchable SA MOBILE number?
+ *
+ * The NCC opt-out registry targets mobile numbers, so landlines must be
+ * rejected - otherwise "011 123 4567" is treated as a consumer and written
+ * into the DNC register as a false suppression. 07x and 08x are SA mobiles.
+ */
+export function isMobileNumber(n: string): boolean {
+  return /^0[78]\d{8}$/.test(n);
 }
 
 export function normalizeEmail(e: string): string {
@@ -57,7 +80,7 @@ export function contactIdentifiers(c: Contact): string[] {
   const ids = new Set<string>();
   if (c.phone) {
     const n = normalizePhone(c.phone);
-    if (n.length >= 9) ids.add(n);
+    if (isMobileNumber(n)) ids.add(n);
   }
   if (c.email) {
     const n = normalizeEmail(c.email);
@@ -70,7 +93,7 @@ export function contactIdentifiers(c: Contact): string[] {
       if (n.includes("@")) ids.add(n);
     } else {
       const n = normalizePhone(c.contact);
-      if (n.length >= 9) ids.add(n);
+      if (isMobileNumber(n)) ids.add(n);
     }
   }
   return [...ids];
@@ -81,11 +104,18 @@ export function parseBlocklist(rows: Record<string, string>[]): BlocklistEntry[]
   const out: BlocklistEntry[] = [];
   for (const r of rows) {
     const keys = Object.keys(r);
-    const phoneKey = keys.find((k) => /phone|cell|mobile|number/i.test(k));
-    const emailKey = keys.find((k) => /email|e-mail|mail/i.test(k));
+    // Score every header so an exact "Email" beats an incidental "Mailer".
+    const phoneKey = keys
+      .map((k) => ({ k, s: /^(phone|cell|mobile)(\s*(number|no\.?))?$/i.test(k) ? 3 : /phone|cell|mobile/i.test(k) ? 2 : 0 }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s)[0]?.k;
+    const emailKey = keys
+      .map((k) => ({ k, s: /^(e-?mail|email address)$/i.test(k) ? 3 : /e-?mail/i.test(k) ? 2 : /\bmail\b/i.test(k) ? 1 : 0 }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s)[0]?.k;
     if (phoneKey && r[phoneKey]) {
       const n = normalizePhone(r[phoneKey]);
-      if (n.length >= 9) out.push({ identifier: n, raw: r[phoneKey], kind: "phone" });
+      if (isMobileNumber(n)) out.push({ identifier: n, raw: r[phoneKey], kind: "phone" });
     }
     if (emailKey && r[emailKey]) {
       const n = normalizeEmail(r[emailKey]);
@@ -109,10 +139,11 @@ export function cleanse(contacts: Contact[], blocklist: BlocklistEntry[]): Clean
   const blSet = new Set(blocklist.map((b) => b.identifier));
   const matched: Contact[] = [];
   const unmatched: Contact[] = [];
+  const alreadyDnc: Contact[] = [];
   let checked = 0;
   for (const c of contacts) {
     if (!isActive(c)) {
-      unmatched.push(c);
+      alreadyDnc.push(c);
       continue;
     }
     checked++;
@@ -125,7 +156,9 @@ export function cleanse(contacts: Contact[], blocklist: BlocklistEntry[]): Clean
     checked,
     matched,
     unmatched,
+    alreadyDnc,
     blocklistSize: blocklist.length,
     generatedAt: new Date().toISOString(),
   };
 }
+
