@@ -1,0 +1,44 @@
+feat: 3D registry gate — the product, drawn
+
+Adds a rotating lattice that records fall toward. Blocked records are
+caught, square up and flare amber; the rest pass through. It is a literal
+picture of the service, placed directly between "the three things that
+will cost you" and the R1m penalty, so the abstraction becomes concrete
+right before the ask.
+
+Two instances: a full stage with BLOCKED / CLEARED counters, and a
+quieter version behind the hero headline (hidden under 820px so phones
+are not paying for it).
+
+NOT Three.js. This page is read on a phone, and a 3D library is ~600KB
+for a scene that needs a perspective divide and some lines. The engine
+is 12KB, hand-written, no dependencies, works offline.
+
+Bugs found and fixed while building it, all caught by a mock-canvas
+harness that runs the real _step/_draw loops (a syntax check could not
+see any of these):
+- `"IntersectionObserver" in global` is true when the property exists
+  but is undefined, so it threw. Now a typeof check, with a plain
+  start() fallback when no observer is available.
+- _seed() only ran on the reduced-motion path, so in a real browser the
+  gate would have rendered with ZERO records. Now always seeded.
+- the perspective divide double-counted camZ: f was 0.5 at the origin
+  instead of 1.0, rendering the entire scene at half scale. Corrected
+  and now clamped so a point near the camera cannot divide by ~zero.
+
+Safety:
+- no 2D context => canvas removed, nothing renders
+- prefers-reduced-motion => one static frame, loop never starts
+- IntersectionObserver pauses the loop when scrolled out of view
+- the boot block wraps each canvas in try/catch: a dead canvas can never
+  take the page down, and the caption still explains the picture in
+  words for a reader with no JS
+
+Accessibility: the showcase canvas is a labelled role="img"; the hero
+copy is aria-hidden. Both canvases are decorative - the surrounding copy
+carries the same meaning.
+
+Verified: engine passes node --check; harness ran 600 simulated steps
+with all record states cycling and no throw; perspective now measures
+f=1.000 at the origin; all three assets resolve; divs balanced 45/45;
+no encoding damage. Copy and every verified legal claim unchanged.
