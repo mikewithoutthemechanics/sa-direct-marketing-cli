@@ -228,6 +228,13 @@
   .disc-body p{font-size:15px;color:var(--steel);line-height:1.55;margin-bottom:13px}
   .disc-body b{color:var(--ink)}
   .disc-body p:last-child{margin-bottom:12px}
+
+  /* ---------- DEMO DISCLOSURE: unmissable, not fine print ---------- */
+  .demo-warn{background:#FFF9EC;border:1px solid #F0DFA8;border-left:4px solid #E0A32E;
+    border-radius:12px;padding:15px 17px;margin:14px 0 4px;
+    font-size:14.5px;line-height:1.55;color:#6B4E14}
+  .demo-warn b{color:#4A3608}
+  .demo-warn strong{color:#7A2E22}
 </style>
 </head>
 <body>
@@ -241,7 +248,7 @@
       permanently, and by <b style="color:#fff">industry</b>, not just by business. It covers the WhatsApps
       and emails you send to <b style="color:#fff">companies</b>, not only consumers. And nobody tells you when it happens.</p>
     <div class="cta-top hero-anim">
-      <a class="btn lg" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
+      <a class="btn lg" href="#tryit">Check my list &mdash; free</a>
       <span class="micro">10 minutes. No obligation. No sales pitch.</span>
     </div>
   </div>
@@ -262,11 +269,16 @@
   </div>
   <div class="gate-stage reveal">
     <canvas class="gate-canvas" data-gate="showcase" role="img"
-      aria-label="Animation: your contact list falling through a rotating registry gate. Blocked records are caught and suppressed; the rest pass through."></canvas>
+      aria-label="Animation: contacts from your list moving up through a sweep line. Blocked contacts stop and move right into a DNC register; the rest pass through and are counted."></canvas>
     <div class="gate-cap">Contacts crossing the amber line: <b>blocked ones stop and move into the DNC register</b>, the rest pass and are counted. What you keep is the register &mdash; and the date.</div>
   </div>
   <h2 class="reveal">Try it on your own list</h2>
   <p class="lede reveal">Paste a list. <b>Nothing is uploaded &mdash; it all runs in your browser.</b></p>
+  <div class="demo-warn">
+    <b>Try it &mdash; but read this first.</b> The results below are a <b>demonstration</b>. They run against a
+    short fictional sample list, <b>not</b> the live NCC registry, so any number marked BLOCKED here is invented
+    for the demo. Your real answer comes from the live registry, and you get it in writing.
+  </div>
   <div class="tryit reveal" id="tryit">
     <label class="tryit-lbl" for="tryit-input">Your list (commas, spaces or one per line)</label>
     <textarea id="tryit-input" placeholder="0821110001, 0825550101, 0713330202 ..." spellcheck="false"></textarea>
@@ -299,7 +311,7 @@
       <li>We cross-match it against the opt-out registry.</li>
       <li>You get a written summary: how many are blocked, what must stop today, and what is already clear.</li>
     </ol>
-    <a class="btn" href="https://cal.agentcy.co.za">Book the 10-minute check</a>
+    <a class="btn" href="#lead-form">Book the 10-minute check</a>
   </div>
 
   <h2 class="reveal">If you want it handled monthly</h2>
@@ -310,7 +322,7 @@
       <div class="sub">Up to 500 records</div>
     </div>
     <div class="card pop reveal">
-      <div class="badge">Most popular</div>
+      <div class="badge">Best value</div>
       <div class="t">Growth</div>
       <div class="p">R2,400<small>/mo</small></div>
       <div class="sub">Up to 2,500 records</div>
@@ -361,12 +373,7 @@
       <p><b>&ldquo;Is this legal advice?&rdquo;</b><br>
         No. A managed compliance service, not a law firm. For your specific obligations, speak to an attorney.</p>
     </div>
-  </details><div class="a">The penalty is a flat fine of up to R1m or 10% of turnover, not a percentage of your spend. A single campaign to a blocked consumer is enough. Size is not a defence.
-  </div>
-<div class="a">No. This is a managed compliance service, not a law firm. For your specific obligations, speak to an attorney. We will tell you what the regulations require and prove what we did &mdash; we will not tell you what you should conclude.
-  </div>
-
-  <div class="lead reveal">
+  </details><div class="lead reveal">
     <h3>Send us the list. Get the answer.</h3>
     <p>Tell us how you reach people and roughly how big the list is. We run the real cross-match against
       the live registry and send back a written summary &mdash; what is blocked, what must stop today, and

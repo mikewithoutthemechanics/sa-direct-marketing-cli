@@ -1,0 +1,48 @@
+fix: four defects found in review, one of them serious
+
+1. CRITICAL - the try-it demo was not labelled as simulated
+   A visitor could paste a real list, see contacts marked BLOCKED in
+   red, and reasonably believe those people had actually blocked them.
+   Nothing anywhere on the page said the blocklist was fictional.
+   This was self-inflicted: an earlier pass trimmed the try-it lede
+   from 34 words to 10 and discarded the second sentence, which was
+   the one disclosing the fictional sample list. A compliance service
+   displaying a fabricated result unlabelled is the worst failure mode
+   this page could have.
+   Fixed with a prominent, unmissable notice immediately above the
+   input - not fine print - stating that the results are a
+   demonstration against a short fictional sample list, NOT the live
+   NCC registry, and that the real answer comes in writing.
+
+2. Both CTAs still bounced to cal.agentcy.co.za
+   The hero "Check my list - free" and the offer "Book the 10-minute
+   check" were the two highest-intent clicks on the page and both left
+   for a calendar scheduler. A previous commit message claimed the
+   calendar bounce had been replaced; that overstated what had been
+   done - the form existed at the bottom, but the two CTAs above it
+   still leaked out. Both now anchor in-page: the hero CTA to the
+   try-it demo, the offer CTA to the form.
+
+3. Orphaned duplicate text after the FAQ
+   Two answer paragraphs were left visible outside the <details>, after
+   the regex that converted the FAQ had already moved copies of them
+   inside. Removed.
+
+4. Stale aria-label and a fabricated badge
+   The canvas aria-label still described the deleted 3D gate
+   ("falling through a rotating registry gate"). Rewritten to describe
+   the sweep. The Growth tier's "Most popular" badge was fabricated -
+   there are no clients. Changed to "Best value", which is supportable
+   from the published tier rates.
+
+Also fixed during this pass: my CSS insertion consumed the closing
+</style> tag, which would have left the entire page unstyled. Caught by
+a tag-balance check rather than by eye, and restored.
+
+Verified after: every tag balanced in the raw file (the one
+non-paired count is the literal word inside a CSS comment), no
+encoding damage, no calendar links, no orphan divs, no stale aria, no
+"Most popular". The demo notice is present, states the results are
+fictional and not from the live registry. Reader-facing word count
+709. Every verified legal claim still present, with the invented
+deadline and unverified fee figures still absent.
