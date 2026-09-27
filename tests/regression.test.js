@@ -1,4 +1,4 @@
-﻿/**
+/**
  * BUG-1 regression + core cleanse tests. Built dist/ is imported (npm run build first).
  * Run: npm run build, then node --test on this file
  */
@@ -240,3 +240,44 @@ test("DATA LOSS: an existing DNC Register must keep its prior rows", () => {
   assert.equal(reg[2][0], "Bravo");
 });
 
+
+
+// ------------------------------------------------- C-04 input guards
+test("C-04: an oversized workbook is refused, not parsed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "sadm-big-"));
+  const p = join(dir, "big.xlsx");
+  const fh = require("node:fs").createWriteStream ? null : null;
+  const { writeFileSync } = require("node:fs");
+  // a sparse 30MB file: exceeds the 25MB default guard
+  writeFileSync(p, Buffer.alloc(30 * 1024 * 1024, 0));
+  const prev = process.env.SA_DM_MAX_BYTES;
+  delete process.env.SA_DM_MAX_BYTES;
+  const realExit = process.exit;
+  let code = null;
+  process.exit = (c) => { code = c; throw new Error("__exit__" + c); };
+  try {
+    readLog(p);
+  } catch (e) {
+    if (!String(e.message).startsWith("__exit__")) throw e;
+  } finally {
+    process.exit = realExit;
+    if (prev !== undefined) process.env.SA_DM_MAX_BYTES = prev;
+  }
+  assert.equal(code, 2, "oversized workbook must be refused with exit 2");
+});
+
+test("C-04: guard limit is overridable via SA_DM_MAX_BYTES", () => {
+  const dir = mkdtempSync(join(tmpdir(), "sadm-ok-"));
+  const p = join(dir, "small.xlsx");
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([LOG_HEADER, ["R1", "A", "Ann", "", "0821111111", "N"]]), LOG_TAB);
+  XLSX.writeFile(wb, p);
+  // allow 1GB - must parse fine
+  process.env.SA_DM_MAX_BYTES = String(1024 * 1024 * 1024);
+  try {
+    const d = readLog(p);
+    assert.equal(d.contacts.length, 1, "small workbook must still load");
+  } finally {
+    delete process.env.SA_DM_MAX_BYTES;
+  }
+});

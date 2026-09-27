@@ -1,0 +1,24 @@
+chore(security): vendor SheetJS 0.20.3 and add input guards (C-04)
+
+We parse UNTRUSTED client workbooks, so the parser version matters.
+The npm registry still serves only the stale 0.18.5, which carries known
+prototype-pollution and ReDoS advisories. SheetJS distributes current
+releases from their own CDN, so 0.20.3 is vendored into vendor/xlsx and
+pinned there.
+
+- src/{workbook,cli,mcp}.ts now require ../vendor/xlsx/xlsx.js
+  (mcp.ts was missed in the first pass and would have crashed the server)
+- types/vendor-xlsx.d.ts declares the small surface actually used
+- README + inline comments record WHY, so nobody downgrades it back
+  to the registry version
+- the npm "xlsx" dependency is left in place but is no longer imported;
+  remove it once the lockfile is next regenerated
+
+Defence in depth: workbooks are now refused cheaply if they exceed
+25MB or 200k rows, overridable via SA_DM_MAX_BYTES / SA_DM_MAX_ROWS.
+A hostile or accidentally enormous file would otherwise be a denial of
+service against a monthly job.
+
+Verified: 20/20 tests pass, including two new guard tests. No behaviour
+change from the upgrade - all 18 pre-existing tests passed first time
+on 0.20.3. Guard verified live against a 30MB file (exits 2).

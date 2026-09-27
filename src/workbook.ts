@@ -2,9 +2,14 @@
  * Workbook IO for the compliance log (xlsx or Google Sheet export).
  * Reads the "Consent & DNC Log" + "DNC Register" tabs and applies cleanse results.
  */
+import { statSync } from "fs";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const XLSX = require("xlsx") as typeof import("xlsx");
+// SheetJS 0.20.3, vendored from cdn.sheetjs.com. The npm registry only
+// serves the stale 0.18.5, which carries known prototype-pollution and
+// ReDoS advisories. We parse UNTRUSTED client workbooks, so the version
+// matters. Do not downgrade to the registry version.
+const XLSX = require("../vendor/xlsx/xlsx.js") as typeof import("../vendor/xlsx/xlsx.js");
 import { Contact, CleanseResult } from "./cleanse.js";
 
 const LOG_TAB = "Consent & DNC Log";
@@ -55,7 +60,34 @@ export interface LogData {
   wb: ReturnType<typeof XLSX.readFile>;
 }
 
+
+/**
+ * Defensive limits for UNTRUSTED client workbooks.
+ * A file that exhausts memory or takes minutes to parse is a denial of
+ * service against a monthly job, so refuse it cheaply and early.
+ * Override with SA_DM_MAX_BYTES / SA_DM_MAX_ROWS.
+ */
+const MAX_BYTES = Number(process.env.SA_DM_MAX_BYTES ?? 25 * 1024 * 1024);
+const MAX_ROWS = Number(process.env.SA_DM_MAX_ROWS ?? 200000);
+
+function assertWithinLimits(path: string): void {
+  const size = statSync(path).size;
+  if (size > MAX_BYTES) {
+    console.error(
+      `ERROR: ${path} is ${(size / 1048576).toFixed(1)}MB, over the ${(MAX_BYTES / 1048576).toFixed(0)}MB limit.`
+    );
+    process.exit(2);
+  }
+}
+
+function assertRowCount(path: string, rows: unknown[][]): void {
+  if (rows.length > MAX_ROWS) {
+    console.error(`ERROR: ${path} has ${rows.length} rows, over the ${MAX_ROWS} limit.`);
+    process.exit(2);
+  }
+}
 export function readLog(path: string): LogData {
+  assertWithinLimits(path);
   const wb = XLSX.readFile(path);
   const logWs = requireTab(wb, LOG_TAB, path, Object.values(wb.Sheets)[0]);
   const logRows = XLSX.utils.sheet_to_json(logWs, { header: 1, raw: false, defval: "" }) as any[][];
@@ -64,6 +96,7 @@ export function readLog(path: string): LogData {
   const dncRows = dncWs ? (XLSX.utils.sheet_to_json(dncWs, { header: 1, raw: false, defval: "" }) as any[][]) : [[ "Business Name", "Contact Person", "Channel", "Date Refused", "Notes" ]];
   const dncHeader = dncRows[0] ?? ["Business Name", "Contact Person", "Channel", "Date Refused", "Notes"];
 
+  assertRowCount(path, logRows);
   const contacts: Contact[] = [];
   for (let i = 1; i < logRows.length; i++) {
     const row = logRows[i];
@@ -139,6 +172,7 @@ export { LOG_TAB, DNC_TAB };
  * Adds a "DNC (Y/N)" column if absent so we can flag matches.
  */
 export function readLeads(path: string, leadTab = "All KZN Plumbers"): LogData {
+  assertWithinLimits(path);
   const wb = XLSX.readFile(path);
   const leadWs = requireTab(wb, leadTab, path, Object.values(wb.Sheets)[0]);
   const leadRows = XLSX.utils.sheet_to_json(leadWs, { header: 1, raw: false, defval: "" }) as any[][];
@@ -150,6 +184,7 @@ export function readLeads(path: string, leadTab = "All KZN Plumbers"): LogData {
     leadHeader = [...leadHeader, "DNC (Y/N)"];
     leadRows[0] = leadHeader;
   }
+  assertRowCount(path, leadRows);
   const contacts: Contact[] = [];
   for (let i = 1; i < leadRows.length; i++) {
     const row = leadRows[i];

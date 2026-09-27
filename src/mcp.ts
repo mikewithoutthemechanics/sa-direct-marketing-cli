@@ -14,7 +14,8 @@ import { readBlocklistCsv } from "./blocklist.js";
 import { cleanse } from "./cleanse.js";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const XLSX = require("xlsx");
+// Vendored SheetJS 0.20.3 (see workbook.ts for why).
+const XLSX = require("../vendor/xlsx/xlsx.js");
 
 const server = new Server(
   { name: "sa-direct-marketing", version: "0.1.0" },
