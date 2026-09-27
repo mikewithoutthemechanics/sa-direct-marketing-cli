@@ -1,0 +1,44 @@
+refactor: cut the page roughly in half, and polish the sweep motion
+
+The page had grown to 1037 words through successive passes. It had
+become a document instead of a page, and the reading burden was the
+biggest conversion leak on it.
+
+Reading load
+- 1037 -> 730 words as a reader actually encounters them (984 if
+  everything is expanded), measured by stripping script/style and
+  excluding collapsed details.
+- The three "cost you" cards became three numbered rows: same three
+  facts, ~55 words fewer, and a list scans where cards do not.
+- The legal position and the FAQ moved into native details. No JS, no
+  dependency, keyboard accessible, collapsed by default - so the
+  careful "phased in, no deadline announced" positioning is still
+  present and still honest, just not read by people who do not need it.
+- Try-it lede cut from 34 words to 10; it was repeating the caption.
+- Offer blurb, founding block and footer trimmed.
+- Removed the CSS for .problem, .qa and .note.warn, which no longer have
+  any markup behind them.
+
+Motion polish
+- records now ease into motion with a smoothstep ramp instead of
+  snapping to speed, which is what made the first version mechanical
+- the catch uses easeOutCubic, so a record leaves briskly and settles
+  into its register slot rather than sliding linearly
+- a brief amber glow at the moment of capture draws the eye to the
+  catch instead of making the reader hunt for it
+- register entries arrive with a wipe that decays, so the right-hand
+  column visibly RECEIVES the record, which is the entire point of it
+
+Bugs fixed while editing
+- my own regex edits left two orphaned closing divs after the FAQ was
+  converted, and the first details insertion left the block unbalanced.
+  Found with a div-stack scan rather than a count, since a count alone
+  does not tell you where the damage is. Now 48/48 with zero strays.
+
+Verified: checked === suppressed + cleared still holds over 900 steps;
+demo mode still settles on exactly the pasted list (6 checked, 3
+suppressed, 3 cleared); register contains every blocked number and no
+cleared ones; all three page scripts pass node --check; all assets
+resolve; every tag balanced; no encoding damage. Legal claims unchanged
+and still verified present, with the invented deadline and unverified
+fee figures still absent.

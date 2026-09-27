@@ -193,14 +193,21 @@
       var r = this.records[i];
 
       if (r.state === "moving") {
-        r.off += speed * dt;
+        // ease into motion: records should arrive with a little weight
+        // rather than snapping to speed, which is what made the first
+        // version look mechanical
+        r.ease = r.ease === undefined ? 0 : r.ease;
+        r.ease = Math.min(1, r.ease + dt * 2.6);
+        var ramp = 0.55 + 0.45 * (r.ease * r.ease * (3 - 2 * r.ease)); // smoothstep
+        r.off += speed * ramp * dt;
+
         if (r.off >= 13) {
-          // reached the sweep line
           this.checked++;
           if (r.blocked === undefined) r.blocked = Math.random() < this.density;
           if (r.blocked) {
             r.state = "caught";
             r.x = 0;
+            r.flare = 1;
             this.suppressed++;
             this.register.unshift({ num: r.num, born: this.t, rid: r.rid });
             if (this.register.length > 40) this.register.pop();
@@ -210,8 +217,13 @@
           }
         }
       } else if (r.state === "caught") {
-        r.x = Math.min(1, r.x + dt * 1.7);
-        r.alpha = r.x > 0.72 ? Math.max(0, 1 - (r.x - 0.72) / 0.28) : 1;
+        // quick out, slow in: the record leaves briskly and settles into
+        // its slot, so the register reads as receiving it deliberately
+        r.x = Math.min(1, r.x + dt * 1.55);
+        var e = r.x;
+        e = 1 - Math.pow(1 - e, 3);                    // easeOutCubic
+        r.alpha = e > 0.82 ? Math.max(0, 1 - (e - 0.82) / 0.18) : 1;
+        if (r.flare > 0) r.flare = Math.max(0, r.flare - dt * 1.9);
       } else if (r.state === "passing") {
         r.off += speed * dt;
         r.alpha = Math.max(0, 1 - (r.off - 13) / 5);
@@ -304,6 +316,17 @@
         var ty = this.regTop + 8 + (slot < 0 ? 0 : slot) * this.rowH;
         var tx = this.leftX + (this.rightX - this.leftX) * r.x;
         var ty2 = y + (ty - y) * r.x;
+
+        // a brief glow behind the record at the moment of capture, so the
+        // eye is drawn to the catch rather than having to find it
+        if (r.flare > 0) {
+          c.globalAlpha = r.flare * 0.5;
+          c.fillStyle = this.accent;
+          c.beginPath();
+          c.arc(this.leftX + (tx - this.leftX) * 0.35,
+                y + (ty2 - y) * 0.35, 11, 0, Math.PI * 2);
+          c.fill();
+        }
         c.globalAlpha = r.alpha;
         c.fillStyle = this.accentDeep;
         c.fillText(r.num, tx, ty2);
@@ -349,10 +372,20 @@
       var e = this.register[i];
       var y = this.regTop + 8 + i * this.rowH;
       var age = this.t - e.born;
-      if (age < 0.45) {
-        c.globalAlpha = 0.2 * (1 - age / 0.45);
+
+      // the newest entry arrives with a wipe that decays: the register
+      // visibly RECEIVES the record, which is the whole point of the
+      // right-hand column
+      if (age < 0.55) {
+        var k = age / 0.55;
+        c.globalAlpha = 0.22 * (1 - k);
         c.fillStyle = this.accent;
         c.fillRect(this.rightX - 6, y - this.rowH / 2 - 1, this.rightW + 12, this.rowH);
+        c.globalAlpha = 1;
+        // a short amber lead-in that draws in from the left
+        c.globalAlpha = (1 - k) * 0.9;
+        c.fillRect(this.rightX - 6, y - this.rowH / 2 - 1,
+                   Math.max(0, (this.rightW + 12) * k), this.rowH);
         c.globalAlpha = 1;
       }
       c.fillStyle = this.accentDeep;

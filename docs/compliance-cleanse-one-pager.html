@@ -91,14 +91,10 @@
     text-transform:uppercase}
   .note{font-size:13.5px;color:var(--steel);background:var(--paper);border:1px solid var(--line);
     border-radius:12px;padding:14px 16px;margin-top:16px}
-  .note.warn{background:#FFF9EC;border-color:#F2E2B8}
   .note p+p{margin-top:8px}
 
   /* objections */
-  .qa{border-bottom:1px solid var(--line);padding:18px 0}
-  .qa:last-child{border-bottom:0}
-  .qa .q{font-weight:700;font-size:16.5px;margin-bottom:5px}
-  .qa .a{color:var(--steel);font-size:16px}
+
 
   /* final cta */
   .close{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
@@ -205,6 +201,35 @@
   .fgrid .req{color:var(--red)}
   .lead .fine{font-size:12.5px;color:var(--mute);margin-top:14px;line-height:1.55}
   @media(max-width:660px){.fgrid{grid-template-columns:1fr}}
+
+  /* ---------- COMPACT FACTS: numbered rows, not cards ---------- */
+  .facts{display:flex;flex-direction:column;gap:2px}
+  .fact-row{display:flex;gap:14px;align-items:baseline;padding:13px 2px;
+    border-bottom:1px solid var(--line)}
+  .fact-row:last-child{border-bottom:0}
+  .fact-row .fn{flex:0 0 26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent2);font-size:12px;font-weight:800;display:grid;place-items:center;
+    align-self:flex-start;margin-top:1px}
+  .fact-row p{font-size:16.5px;color:var(--steel);line-height:1.5}
+  .fact-row b{color:var(--ink);font-weight:650}
+
+  /* ---------- DISCLOSURE: native <details>, no JS ---------- */
+  .disclosure{border:1px solid var(--line);border-radius:14px;background:var(--paper);
+    margin:14px 0;overflow:hidden}
+  .disclosure>summary{cursor:pointer;list-style:none;padding:15px 18px;font-size:15px;
+    font-weight:650;color:var(--steel);display:flex;align-items:center;gap:10px;
+    transition:color .15s ease}
+  .disclosure>summary::-webkit-details-marker{display:none}
+  .disclosure>summary::after{content:"";margin-left:auto;width:8px;height:8px;
+    border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);
+    transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s ease}
+  .disclosure[open]>summary{color:var(--ink);border-bottom:1px solid var(--line)}
+  .disclosure[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+  .disclosure>summary:hover{color:var(--ink)}
+  .disc-body{padding:16px 18px 4px}
+  .disc-body p{font-size:15px;color:var(--steel);line-height:1.55;margin-bottom:13px}
+  .disc-body b{color:var(--ink)}
+  .disc-body p:last-child{margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -229,30 +254,14 @@
     That assumption is the whole problem.</p>
 
   <h2 class="reveal">Three things that will cost you</h2>
-
-  <div class="fact reveal">
-    <div class="tag">The one everyone gets wrong</div>
-    <h3>1. B2B is covered</h3>
-    <p>The 2026 Amendment Regulations apply to promotional activity aimed at <b>companies</b>, not just consumers.
-      POPIA section 69 applies regardless of how the CPA classifies the recipient. If you email or WhatsApp
-      a business, you are in scope.</p>
+  <div class="facts">
+    <div class="fact-row reveal"><span class="fn">1</span><p><b>B2B is covered.</b>
+      Promotional messages to <b>companies</b> are in scope, not just consumers.</p></div>
+    <div class="fact-row reveal"><span class="fn">2</span><p><b>A block overrides consent.</b>
+      Someone who blocks you must not be marketed to again &mdash; even if they opted in first.</p></div>
+    <div class="fact-row reveal"><span class="fn">3</span><p><b>Blocks can be scoped to your industry.</b>
+      Plumbers can block plumbers. You are not notified.</p></div>
   </div>
-
-  <div class="fact reveal">
-    <div class="tag">Consent is not enough</div>
-    <h3>2. A block overrides your opt-in</h3>
-    <p>Someone who registers a pre-emptive block must not be marketed to again &mdash; <b>even if they opted in
-      with you before</b>, and even if they never told you.</p>
-  </div>
-
-  <div class="fact reveal">
-    <div class="tag">The silent one</div>
-    <h3>3. Blocks can be scoped to your whole industry</h3>
-    <p>The registry supports blocks by company, <b>industry</b>, channel, purpose or time period. A plumber
-      can block plumbers in a region. You will not receive a notification, an email, or a list of who to drop.
-      You just keep sending.</p>
-  </div>
-
   <div class="gate-stage reveal">
     <canvas class="gate-canvas" data-gate="showcase" role="img"
       aria-label="Animation: your contact list falling through a rotating registry gate. Blocked records are caught and suppressed; the rest pass through."></canvas>
@@ -260,9 +269,7 @@
       the rest pass through</b> &mdash; and you get the dated record of both.</div>
   </div>
   <h2 class="reveal">Try it on your own list</h2>
-  <p class="lede reveal">Paste any numbers or emails below. <b>Nothing is uploaded and nothing leaves your
-    browser</b> &mdash; this runs entirely on this page against a small fictional demo list, so you can see
-    the mechanic before you trust us with a real one.</p>
+  <p class="lede reveal">Paste a list. <b>Nothing is uploaded &mdash; it all runs in your browser.</b></p>
   <div class="tryit reveal" id="tryit">
     <label class="tryit-lbl" for="tryit-input">Your list (commas, spaces or one per line)</label>
     <textarea id="tryit-input" placeholder="0821110001, 0825550101, 0713330202 ..." spellcheck="false"></textarea>
@@ -289,7 +296,7 @@
   <h2 class="reveal">The free check</h2>
   <div class="offer reveal">
     <h3>Find out who on your list must not hear from you.</h3>
-    <p>Ten minutes, and you keep the answer whether or not you work with us.</p>
+    <p>You keep the answer either way.</p>
     <ol>
       <li>Send us one list you actually market from &mdash; a WhatsApp broadcast list, an SMS group, an email list.</li>
       <li>We cross-match it against the opt-out registry.</li>
@@ -328,32 +335,38 @@
       <b>locked for 12 months</b>, and the free audit is yours whether you stay or not. Once we have taken
       on enough clients to cover the cost, the rate goes up for new clients.</p>
   </div>
-  <div class="note warn reveal">
-    <p><b>On timing:</b> the NCC has confirmed implementation is <b>phased in with no compliance deadline
-      announced</b>, and further guidance is expected. We are not going to invent a deadline to create urgency
-      you have not been given. The businesses that get this right early are the ones who never have to stop
-      mid-campaign and find out who is on their list.</p>
-    <p>NCC statutory fees &mdash; registration, annual renewal, and any per-record cleansing charge &mdash; are
-      <b>passed through at cost</b>, itemised, with no margin. We confirm current figures with you at onboarding,
-      as the NCC sets them and is still phasing them in.</p>
-  </div>
+  <details class="disclosure reveal">
+    <summary>The small print, plainly</summary>
+    <div class="disc-body">
+      <p><b>On timing.</b> The NCC says implementation is phased in with <b>no compliance deadline announced</b>.
+        We are not going to invent a deadline to manufacture urgency you have not been given &mdash; but the
+        businesses that sort this out early are the ones who never stop mid-campaign to find out who is on their list.</p>
+      <p><b>On fees.</b> NCC statutory fees (registration, renewal, any per-record charge) are <b>passed through
+        at cost</b>, itemised. We confirm current figures at onboarding, since the NCC sets them and is still
+        phasing them in.</p>
+      <p><b>On the registry step.</b> The NCC expects lists cleansed <i>through</i> the registry. We manage the
+        monthly cleanse, the register and the evidence, and guide that submission step rather than claim we replace it.</p>
+    </div>
+  </details>
 
-  <h2 class="reveal">Fair questions</h2>
-  <div class="qa reveal">
-    <div class="q">"We are small. Would anyone really come after us?"</div>
-    <div class="a">The penalty is a flat fine of up to R1m or 10% of turnover, not a percentage of your spend. A single campaign to a blocked consumer is enough. Size is not a defence.</div>
+  <details class="disclosure reveal">
+    <summary>Fair questions</summary>
+    <div class="disc-body">
+      <p><b>&ldquo;We are small &mdash; would anyone come after us?&rdquo;</b><br>
+        The penalty is a flat fine of up to R1m or 10% of turnover, not a share of your spend. One campaign to a
+        blocked consumer is enough. Size is not a defence.</p>
+      <p><b>&ldquo;We do WhatsApp, not marketing.&rdquo;</b><br>
+        Promotional messages to a list are direct marketing, including follow-ups and quote requests to people
+        who did not ask. Most businesses pass this test.</p>
+      <p><b>&ldquo;Isn&rsquo;t this just POPIA again?&rdquo;</b><br>
+        Different problem, same shape. The registry is new, it is a government portal, and it has <b>no API</b>
+        &mdash; so the export and cross-match is manual. That step is where businesses fall over.</p>
+      <p><b>&ldquo;Is this legal advice?&rdquo;</b><br>
+        No. A managed compliance service, not a law firm. For your specific obligations, speak to an attorney.</p>
+    </div>
+  </details><div class="a">The penalty is a flat fine of up to R1m or 10% of turnover, not a percentage of your spend. A single campaign to a blocked consumer is enough. Size is not a defence.
   </div>
-  <div class="qa reveal">
-    <div class="q">"We do WhatsApp, not marketing."</div>
-    <div class="a">Promotional messages to a list are direct marketing, including follow-ups and quote requests to people who did not ask. Most businesses pass this test.</div>
-  </div>
-  <div class="qa reveal">
-    <div class="q">"Isn't this just POPIA again?"</div>
-    <div class="a">Different problem, same shape. The registry is new, it is a government portal, and it has <b>no API</b> &mdash; so the export and cross-match is manual. That manual step is exactly where businesses fall over.</div>
-  </div>
-  <div class="qa reveal">
-    <div class="q">"Is this legal advice?"</div>
-    <div class="a">No. This is a managed compliance service, not a law firm. For your specific obligations, speak to an attorney. We will tell you what the regulations require and prove what we did &mdash; we will not tell you what you should conclude.</div>
+<div class="a">No. This is a managed compliance service, not a law firm. For your specific obligations, speak to an attorney. We will tell you what the regulations require and prove what we did &mdash; we will not tell you what you should conclude.
   </div>
 
   <div class="lead reveal">
@@ -396,10 +409,9 @@
       details would not be lost on us.</p>
   </div>
 
-  <p class="foot">Agentcy (Pty) Ltd &middot; The NCC opt-out registry operates under the Consumer Protection Act
-    Amendment Regulations, 2026 (effective 15 April 2026), alongside POPIA (Act 4 of 2013) section 69.
-    A managed compliance service, not legal advice. Statutory fees are set by the National Consumer Commission
-    and passed through at cost.</p>
+  <p class="foot">Agentcy (Pty) Ltd &middot; NCC opt-out registry under the Consumer Protection Act Amendment
+    Regulations 2026 (effective 15 April 2026) and POPIA (Act 4 of 2013) s69. A managed compliance service,
+    not legal advice. Statutory fees set by the NCC and passed through at cost.</p>
 </main>
 
 
