@@ -1,0 +1,40 @@
+feat: GSAP motion layer, vendored and safely degradable
+
+Adds animation, with restraint: this page asks a sceptical reader to
+trust Agentcy with a legal exposure, so motion is used to guide the eye
+down the argument rather than to entertain.
+
+Animations:
+- hero staggers in on load (5 elements, 0.11s apart)
+- an amber rule draws itself under the emphasised word in the H1
+- 22 elements reveal on scroll via ScrollTrigger, once each
+- the three "cost you" facts animate as a group with a stagger
+- the R1,000,000 figure counts up when it scrolls into view, then
+  settles on the exact number
+- the highlighted pricing tier pops with a slight overshoot
+- the offer CTA pulses once - deliberately not a loop
+
+Correctness and resilience:
+- GSAP 3.12.5 is VENDORED to docs/vendor/, not loaded from a CDN, so the
+  page has no third-party runtime dependency and works offline
+- the script opens with `if (!window.gsap) return;` and only then adds
+  the `gsap` class to <html>; every hidden state is scoped to `html.gsap`
+  (verified: zero unscoped .reveal{opacity:0} rules). If the library
+  fails to load, JS is disabled, or the file is opened from somewhere
+  the vendor path breaks, the page renders complete and static
+- prefers-reduced-motion is respected and short-circuits the whole
+  machinery, including clearing the hidden states
+- ScrollTrigger.refresh() on window load so late font/asset settling
+  does not leave triggers misaligned
+
+Fixed while writing it: the underline draw originally animated a CSS
+custom property (--draw) that nothing consumed, which would have done
+nothing visible. Replaced with a real <i> element animated via scaleX.
+
+Verified: script passes node --check; all six queried selectors exist in
+the markup; both vendor files resolve; divs balanced 43/43; no encoding
+damage. Copy, layout and every verified legal claim unchanged - B2B
+scope, opt-in override, industry blocks, the R1m/10% penalty, the
+15 Apr 2026 effective date, phased-in timing, fees at cost and
+not-legal-advice all still present, with the invented deadline and
+unverified fee figures still absent.

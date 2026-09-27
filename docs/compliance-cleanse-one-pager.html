@@ -115,19 +115,40 @@
     .hero{padding:40px 0 36px}
     .offer,.close{padding:28px 22px}
   }
+
+  /* ---------- MOTION ----------
+     Elements start hidden ONLY when JS is present (html.gsap) so that a
+     failed script, an old browser, or a reader with JS disabled still
+     sees a complete page. Never hide content by default. */
+  html.gsap .reveal{opacity:0;transform:translateY(22px)}
+  html.gsap .reveal-left{opacity:0;transform:translateX(-26px)}
+  html.gsap .hero-anim{opacity:0;transform:translateY(16px)}
+
+  @media (prefers-reduced-motion: reduce){
+    html.gsap .reveal,
+    html.gsap .reveal-left,
+    html.gsap .hero-anim{opacity:1 !important;transform:none !important}
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+
+  /* amber rule that draws in under the emphasised word */
+  .underline{display:inline-block;position:relative}
+  .underline i{position:absolute;left:0;right:0;bottom:-.1em;height:3px;
+    background:var(--accent);border-radius:2px;
+    transform:scaleX(0);transform-origin:left}
 </style>
 </head>
 <body>
 
 <section class="hero">
   <div class="wrap">
-    <div class="wordmark">agentc<span>y</span></div>
-    <div class="eyebrow">South Africa &middot; NCC opt-out registry</div>
-    <h1>You are still messaging people who asked you to <em>stop</em>.</h1>
-    <p class="sub">Since April 2026, anyone can block you at the National Consumer Commission &mdash;
+    <div class="wordmark hero-anim">agentc<span>y</span></div>
+    <div class="eyebrow hero-anim">South Africa &middot; NCC opt-out registry</div>
+    <h1 class="hero-anim">You are still messaging people who asked you to <em class="underline">stop<i></i></em>.</h1>
+    <p class="sub hero-anim">Since April 2026, anyone can block you at the National Consumer Commission &mdash;
       permanently, and by <b style="color:#fff">industry</b>, not just by business. It covers the WhatsApps
       and emails you send to <b style="color:#fff">companies</b>, not only consumers. And nobody tells you when it happens.</p>
-    <div class="cta-top">
+    <div class="cta-top hero-anim">
       <a class="btn lg" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
       <span class="micro">10 minutes. No obligation. No sales pitch.</span>
     </div>
@@ -135,12 +156,12 @@
 </section>
 
 <main class="wrap">
-  <p class="lede">Most business owners still believe business-to-business outreach is exempt. It isn't.
+  <p class="lede reveal">Most business owners still believe business-to-business outreach is exempt. It isn't.
     That assumption is the whole problem.</p>
 
-  <h2>Three things that will cost you</h2>
+  <h2 class="reveal">Three things that will cost you</h2>
 
-  <div class="fact">
+  <div class="fact reveal">
     <div class="tag">The one everyone gets wrong</div>
     <h3>1. B2B is covered</h3>
     <p>The 2026 Amendment Regulations apply to promotional activity aimed at <b>companies</b>, not just consumers.
@@ -148,14 +169,14 @@
       a business, you are in scope.</p>
   </div>
 
-  <div class="fact">
+  <div class="fact reveal">
     <div class="tag">Consent is not enough</div>
     <h3>2. A block overrides your opt-in</h3>
     <p>Someone who registers a pre-emptive block must not be marketed to again &mdash; <b>even if they opted in
       with you before</b>, and even if they never told you.</p>
   </div>
 
-  <div class="fact">
+  <div class="fact reveal">
     <div class="tag">The silent one</div>
     <h3>3. Blocks can be scoped to your whole industry</h3>
     <p>The registry supports blocks by company, <b>industry</b>, channel, purpose or time period. A plumber
@@ -163,20 +184,20 @@
       You just keep sending.</p>
   </div>
 
-  <h2>What it costs to get this wrong</h2>
-  <div class="risk">
+  <h2 class="reveal">What it costs to get this wrong</h2>
+  <div class="risk reveal">
     <h3>Marketing to a blocked consumer is an offence under the CPA.</h3>
     <div class="big">R1,000,000 or 10% of turnover</div>
     <p>Whichever is higher, for a single campaign. It is not a percentage of what you spend &mdash; it is a
       percentage of your entire business.</p>
   </div>
-  <div class="note">
+  <div class="note reveal">
     <p>A direct marketer that has not registered with the NCC is <b>barred from contacting consumers for direct
       marketing</b>. That is a bigger risk than any fine: the lists you have already built become unusable.</p>
   </div>
 
-  <h2>The free check</h2>
-  <div class="offer">
+  <h2 class="reveal">The free check</h2>
+  <div class="offer reveal">
     <h3>Find out who on your list must not hear from you.</h3>
     <p>Ten minutes, and you keep the answer whether or not you work with us.</p>
     <ol>
@@ -187,31 +208,31 @@
     <a class="btn" href="https://cal.agentcy.co.za">Book the 10-minute check</a>
   </div>
 
-  <h2>If you want it handled monthly</h2>
+  <h2 class="reveal">If you want it handled monthly</h2>
   <div class="grid">
-    <div class="card">
+    <div class="card reveal">
       <div class="t">Starter</div>
       <div class="p">R950<small>/mo</small></div>
       <div class="sub">Up to 500 records</div>
     </div>
-    <div class="card pop">
+    <div class="card pop reveal">
       <div class="badge">Most popular</div>
       <div class="t">Growth</div>
       <div class="p">R2,400<small>/mo</small></div>
       <div class="sub">Up to 2,500 records</div>
     </div>
-    <div class="card">
+    <div class="card reveal">
       <div class="t">Scale</div>
       <div class="p">Custom</div>
       <div class="sub">2,500+ / multi-region</div>
     </div>
   </div>
-  <div class="note">
+  <div class="note reveal">
     <p>Every tier includes NCC registration assistance, the monthly cross-match, a maintained
       Do-Not-Contact register, and a dated evidence trail &mdash; <b>the burden of proof sits with the sender</b>,
       so you can show what you did and when. Onboarding is R2,500 once-off.</p>
   </div>
-  <div class="note warn">
+  <div class="note warn reveal">
     <p><b>On timing:</b> the NCC has confirmed implementation is <b>phased in with no compliance deadline
       announced</b>, and further guidance is expected. We are not going to invent a deadline to create urgency
       you have not been given. The businesses that get this right early are the ones who never have to stop
@@ -221,25 +242,25 @@
       as the NCC sets them and is still phasing them in.</p>
   </div>
 
-  <h2>Fair questions</h2>
-  <div class="qa">
+  <h2 class="reveal">Fair questions</h2>
+  <div class="qa reveal">
     <div class="q">"We are small. Would anyone really come after us?"</div>
     <div class="a">The penalty is a flat fine of up to R1m or 10% of turnover, not a percentage of your spend. A single campaign to a blocked consumer is enough. Size is not a defence.</div>
   </div>
-  <div class="qa">
+  <div class="qa reveal">
     <div class="q">"We do WhatsApp, not marketing."</div>
     <div class="a">Promotional messages to a list are direct marketing, including follow-ups and quote requests to people who did not ask. Most businesses pass this test.</div>
   </div>
-  <div class="qa">
+  <div class="qa reveal">
     <div class="q">"Isn't this just POPIA again?"</div>
     <div class="a">Different problem, same shape. The registry is new, it is a government portal, and it has <b>no API</b> &mdash; so the export and cross-match is manual. That manual step is exactly where businesses fall over.</div>
   </div>
-  <div class="qa">
+  <div class="qa reveal">
     <div class="q">"Is this legal advice?"</div>
     <div class="a">No. This is a managed compliance service, not a law firm. For your specific obligations, speak to an attorney. We will tell you what the regulations require and prove what we did &mdash; we will not tell you what you should conclude.</div>
   </div>
 
-  <div class="close">
+  <div class="close reveal">
     <h3>You do not have to do anything about this today.</h3>
     <p>But you should know whether your list is clean. That is a ten-minute question, and the answer is yours either way.</p>
     <a class="btn lg" href="https://cal.agentcy.co.za">Check my list &mdash; free</a>
@@ -251,5 +272,103 @@
     and passed through at cost.</p>
 </main>
 
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script>
+/* Motion layer.
+   Contract: this script is progressive enhancement only. If GSAP fails to
+   load, or the reader prefers reduced motion, or JS is off, the page is
+   already fully readable - the hiding states are scoped to html.gsap,
+   which is only added once we know GSAP is actually available. */
+(function () {
+  "use strict";
+
+  if (!window.gsap) return;                    // no GSAP -> do nothing at all
+  var reduce = window.matchMedia &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Only now do we opt into hidden states.
+  document.documentElement.classList.add("gsap");
+
+  if (reduce || !window.ScrollTrigger) {
+    // Reduced motion: show everything immediately, skip the machinery.
+    gsap.set(".reveal,.reveal-left,.hero-anim", { clearProps: "all" });
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- HERO: staggered entrance on load ---------- */
+  var heroBits = document.querySelectorAll(".hero-anim");
+  gsap.to(heroBits, {
+    opacity: 1, y: 0, duration: 0.7, ease: "power2.out",
+    stagger: 0.11, delay: 0.08
+  });
+
+  /* the amber rule draws itself under the emphasised word */
+  var rule = document.querySelector(".underline i");
+  if (rule) {
+    gsap.to(rule, {
+      scaleX: 1, duration: 0.8, delay: 0.6, ease: "power2.inOut"
+    });
+  }
+
+  /* ---------- BODY: reveal on scroll ---------- */
+  gsap.utils.toArray(".reveal").forEach(function (el) {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: 0.65, ease: "power2.out",
+      scrollTrigger: { trigger: el, start: "top 88%", once: true }
+    });
+  });
+
+  /* ---------- THE THREE FACTS: stagger as a group ---------- */
+  var facts = document.querySelectorAll(".fact");
+  if (facts.length) {
+    gsap.to(facts, {
+      opacity: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.12,
+      scrollTrigger: { trigger: facts[0], start: "top 82%", once: true }
+    });
+  }
+
+  /* ---------- PRICING: pop the highlighted tier ---------- */
+  var pop = document.querySelector(".card.pop");
+  if (pop) {
+    gsap.fromTo(pop,
+      { scale: 0.97 },
+      { scale: 1, duration: 0.7, ease: "back.out(1.6)",
+        scrollTrigger: { trigger: pop, start: "top 88%", once: true } });
+  }
+
+  /* ---------- THE R1M FIGURE: count up when it lands ---------- */
+  var big = document.querySelector(".risk .big");
+  if (big) {
+    var counter = { v: 0 };
+    gsap.to(counter, {
+      v: 1000000,
+      duration: 1.5,
+      ease: "power2.out",
+      scrollTrigger: { trigger: big, start: "top 90%", once: true },
+      onUpdate: function () {
+        var n = Math.round(counter.v);
+        big.textContent = "R" + n.toLocaleString("en-ZA");
+      },
+      onComplete: function () { big.textContent = "R1,000,000"; }
+    });
+  }
+
+  /* ---------- CTA: a quiet attention pulse, not a loop ---------- */
+  var cta = document.querySelector(".offer .btn");
+  if (cta) {
+    gsap.fromTo(cta, { scale: 1 }, {
+      scale: 1.035, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.inOut",
+      delay: 0.7
+    });
+  }
+
+  /* keep ScrollTrigger honest after images/fonts settle */
+  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+})();
+</script>
 </body>
 </html>
