@@ -1,0 +1,36 @@
+docs: correct unsupported claims in the Compliance Cleanse one-pager
+
+The page was live and made claims the regulator has not made. Corrected
+against the verified legal position (Bowmans 21 Apr 2026; SchoemanLaw via
+Polity 29 Jun 2026; NCC 24 Jul 2026 stakeholder webinar via Media Online
+21 Aug 2026).
+
+Removed - none of these are supported:
+- "From September 2026 every business that does direct marketing ...
+  must register". The NCC has announced NO compliance deadline;
+  implementation is phased in with further guidance to follow. The page
+  now says exactly that, and explains why we do not quote a deadline.
+- "We run the whole obligation for you". The NCC's own wording is that
+  lists are cleansed THROUGH the Registry; we match locally and manage
+  the monthly cleanse, register and evidence. Restated honestly, with
+  the submission step described as guided rather than replaced.
+- The statutory fee figures (R2,574 registration, R1,930.50/yr renewal,
+  12c per record) were printed as fact but could not be verified
+  against a primary source. Removed from the pricing block and replaced
+  with a flagged note: passed through at cost, confirmed at onboarding.
+
+Added:
+- B2B is in scope, as the lead hook. The 2026 Amendment Regulations
+  apply to promotional activity directed at juristic persons, and POPIA
+  s69 applies regardless of CPA classification. Most prospects believe
+  they are exempt.
+- The registry supports blocking by industry/company/channel/purpose,
+  not only blanket opt-out. This is the fear that sells the service.
+- Named the instruments (CPA Amendment Regulations 2026, effective
+  15 Apr 2026; POPIA Act 4 of 2013 s69) and stated plainly that this is
+  a managed service, not legal advice, and not a law firm.
+
+Pricing tiers and design are unchanged; added a R2,500 one-off
+onboarding fee.
+
+Closes C-10, C-11, and the unverified-fee part of the review.
