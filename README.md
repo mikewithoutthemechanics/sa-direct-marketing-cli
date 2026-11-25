@@ -1,89 +1,56 @@
-# sa-direct-marketing-cli
+# Sa Direct Marketing Cli
 
-POPIA s69 + CPA Amendment Regulations 2026 compliant direct-marketing tooling for
-South African outreach. Ships a **CLI** and an **MCP server** (stdio) that do the
-same job: the **monthly NCC opt-out registry cleanse**.
+![Repo size](https://img.shields.io/github/repo-size/mikewithoutthemechanics/sa-direct-marketing-cli)
+![License](https://img.shields.io/github/license/mikewithoutthemechanics/sa-direct-marketing-cli)
+![Top language](https://img.shields.io/github/languages/top/mikewithoutthemechanics/sa-direct-marketing-cli)
 
-## Why this exists
+## 👋 Hi, I'm Michael
 
-The National Consumer Commission (NCC) opt-out registry
-(`https://eservice.thencc.org.za/`) went live **15 April 2026**. The 2026
-Amendment Regulations make it mandatory for direct marketers to:
+This is one of my projects. Here's what it's about, why it exists, and how you can use it.
 
-- register as a direct marketer with the NCC (annual renewal, fee ~ZAR 2,574),
-- **cleanse their marketing database against the registry monthly**, and
-- never market to a consumer who registered a pre-emptive block.
+## 📦 What it does
 
-The registry has **no public API** — it is a web portal. So this tool cross-
-references your active list against a **blocklist CSV you export from the portal**.
+POPIA/CPA 2026 compliant direct-marketing CLI + MCP server: monthly NCC opt-out registry cleanse for SA outreach lists.
 
-## Install
+## 🎯 The goal it fills
 
-```bash
-npm install
-npm run build
-npm link            # exposes `sa-dm`
-```
+This project exists to solve a specific need and make a particular task simpler. Whether it's automating a workflow, serving a website, or powering a tool, the goal is to be practical, usable, and straightforward.
 
-## Usage
+## 🚀 How to use
 
-```bash
-# Dry run (reports matches, writes nothing)
-sa-dm cleanse --log KZN_Outreach_Compliance_Log.xlsx --blocklist ncc-export.csv
+1. **Get the code**
+   ```bash
+   git clone https://github.com/mikewithoutthemechanics/sa-direct-marketing-cli.git
+   cd sa-direct-marketing-cli
+   ```
 
-# Apply DNC changes (flips matched rows, appends to DNC Register)
-sa-dm cleanse --log KZN_Outreach_Compliance_Log.xlsx --blocklist ncc-export.csv --write
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# Also supports the MASTER LEADS list (KZN_Plumbers_Master.xlsx style):
-sa-dm cleanse --log KZN_Plumbers_Master.xlsx --type leads --blocklist ncc-export.csv --write
-#   -> adds a "DNC (Y/N)" column if absent, flips matches, appends a DNC Register tab
-```
+3. **Run it**
+   See the available commands below and pick the one you need.
 
-The `--type` switch selects the workbook schema:
-- `log` (default) — the compliance log with `Consent & DNC Log` + `DNC Register` tabs
-- `leads` — a master plumbers list (`All KZN Plumbers` tab); DNC column is created on write
+### Available commands
 
-## MCP server
+| `npm run build` | tsc |
+| `npm run test` | npm run build && node --test "tests/**/*.test.js" |
+| `npm run cleanse` | node dist/cli.js cleanse |
+| `npm run mcp` | node dist/mcp.js |
 
-```bash
-node dist/mcp.js
-```
+## 🛠️ Tech stack
 
-Exposes one tool: `cleanse_marketing_list(logPath, blocklistPath, type?, write?)`.
-Wire it into Hermes or any MCP client that supports stdio servers. Registered in
-Hermes as `sa-direct-marketing` (discovered + enabled).
+typescript
 
-## Compliance notes (not legal advice)
+## 💡 Why it matters
 
-- This automates the *mechanical* cleanse. The human step — exporting the
-  registry blocklist from the NCC portal and registering as a marketer — remains
-  yours.
-- POPIA opt-in consent is still required before any electronic marketing to
-  non-customers; the registry cleanse is an *additional* obligation, not a
-  substitute.
-- Per the 2026 Regulations, a pre-emptive block supersedes earlier consent.
+This project is built to be useful and easy to pick up. If you're looking for a tool that does sa direct marketing cli, this is a clean, maintainable starting point you can adapt to your own needs.
 
-## License
+## 📄 License
 
 MIT
 
-## Tests
+---
 
-```bash
-npm test
-```
-
-Runs 18 checks covering the `rowId` collision regression, DNC Register
-persistence, phone normalisation (incl. `+27` / `27` / `0027` prefixes),
-landline rejection, blocklist header scoring and both workbook schemas.
-
-## Notes on failure modes
-
-- **Missing tab = refuse, don't guess.** `cleanse` exits 2 if the expected
-  tab is absent rather than falling back to the first sheet, which may be
-  the DNC Register itself. Set `SA_DM_ALLOW_FALLBACK=1` for a read-only look.
-- **Only SA mobiles are matchable.** `isMobileNumber` accepts `07x`/`08x`
-  only, so landlines are never written to the DNC Register.
-- **Blank `RowID` cells fall back to the row index.** Previously a blank
-  `RowID` produced an empty identifier, so one match suppressed every
-  blank-`RowID` row in the file.
+Made with ❤️ by Michael
